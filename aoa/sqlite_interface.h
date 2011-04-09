@@ -31,4 +31,6 @@ private:
 };
 
 //methods
-int needUpdateCallback(void*,int,char**,char**);
+int needUpdateCallback(void*, int, char**,char**);
+int dwellTimeCallback(void*, int, char**, char**);
+int frequencyCallback(void*, int, char**, char**);
