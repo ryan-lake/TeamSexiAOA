@@ -2,7 +2,6 @@ package test.Data;
 
 public class USRPVectorsFrame {
 
-	public static boolean buffReady = false;
 	/**
 	 * Assuming order of frame data is A1, A2, B1, B2
 	 * 

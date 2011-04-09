@@ -1,24 +1,56 @@
 package test.Data;
 
-import java.sql.Timestamp;
-
 import com.SQLiteDatabaseWrapper.QDFDbAdapter;
-
-import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
+import android.content.ContentValues;
+
+import java.util.Random;
 
 public class SQLLoad {
-	public static long load(SQLiteDatabase sqlDb){
-		
+	
+	
+	/**
+	 * Load Test vectors in to the data table
+	 * 
+	 * Timestamp will be set based ont he system clock 
+	 * 
+	 * Data will change every time its called. 
+	 * 
+	 */
+	public static long loadData(SQLiteDatabase sqlDb){
+		if(sqlDb != null){
         ContentValues initialValues = new ContentValues();
-        
-        //Timestamp temp = new Timestamp(System.currentTimeMillis());
-        //Long.toString((System.currentTimeMillis()))
-        initialValues.put(QDFDbAdapter.TIMESTAMP , new Timestamp(System.currentTimeMillis()).toString());
-        //initialValues.put(QDFDbAdapter.TIMESTAMP,"bam");
-        initialValues.put(QDFDbAdapter.LOCATION , 10);
-        initialValues.put(QDFDbAdapter.ID, 1);
+        initialValues.put(QDFDbAdapter.TIMESTAMP , System.currentTimeMillis());
+         
+        initialValues.put(QDFDbAdapter.LOCATION , generateNewData(274));
 
         return sqlDb.insert(QDFDbAdapter.DATATABLENAME, null, initialValues);
+		}
+		return -1;
+	}
+	/*
+	 * Load test vectors into the 
+	 */
+
+	public static long loadSettings(SQLiteDatabase sqlDb){
+		if(sqlDb != null){
+		ContentValues initialValues = new ContentValues();
+		
+        initialValues.put(QDFDbAdapter.TIMESTAMP , System.currentTimeMillis());
+
+        initialValues.put(QDFDbAdapter.DWELLTIME , generateNewData(120));
+        initialValues.put(QDFDbAdapter.CENTERFREQ, generateNewData(56));
+        initialValues.put(QDFDbAdapter.READ, 0);
+
+        return sqlDb.insert(QDFDbAdapter.SETTINGSTABLENAME, null, initialValues);
+		}
+		return -1;
+	}
+	/**
+	 * Will return randomly generated int between 1 and a cap
+	 */
+	private static int generateNewData(int cap){
+		  Random rand = new Random();
+		  return rand.nextInt(cap)+1;		  
 	}
 }

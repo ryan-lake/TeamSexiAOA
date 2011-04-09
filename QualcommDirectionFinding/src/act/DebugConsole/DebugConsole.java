@@ -4,6 +4,7 @@ import java.sql.Timestamp;
 
 import com.SQLiteDatabaseWrapper.QDFDbAdapter;
 
+import test.Data.TestControl;
 import test.Data.USRPVectorsFrame;
 
 import act.DebugConsole.R;
@@ -55,8 +56,7 @@ To prevent multiple instances of services to access the db maybe a static servic
     
     //Database
     QDFDbAdapter adapter;
-    Cursor cursor;
-    //TODO set up cursor factory
+    //Cursor cursor;
     
     //Test area 
     //snap
@@ -97,20 +97,22 @@ To prevent multiple instances of services to access the db maybe a static servic
         	            }
         	        };
         
-        //consoleBR = new ConsoleBR();         
-        
-        //this.startService(new Intent(this,com.Services.PollingService.class));        
+        this.startService(new Intent(this,com.Services.PollingService.class));        
         
         adapter = new QDFDbAdapter(this);
-        long temp = adapter.open();
-        adapter.purge();//testing
-        temp = adapter.open();
-
+        adapter.open();
         
-        cursor = (SQLiteCursor) adapter.fetchAllData();
+        adapter.purgeAll();//testing
+        
+        adapter.loadTestData();
+
+        //DB Test verification
+       //Cursor cursor = (SQLiteCursor) adapter.readData();
+        /*
+        Cursor cursor = (SQLiteCursor) adapter.readSettings();
         cursor.moveToFirst();
         cursor.moveToLast();
- 
+        */
     }
     
     @Override
@@ -141,12 +143,14 @@ To prevent multiple instances of services to access the db maybe a static servic
     public void updateGUI(String newValue){
     	TextView status = (TextView) findViewById(R.id.StatusText);
 		//Simulated update GUI Algorithm
-        	status.setText(newValue);
+        	status.setText(status.getText()+"\n"+newValue);
 	}
         
     private OnClickListener mUpdateListener = new OnClickListener() {
         public void onClick(View v) {
-        	USRPVectorsFrame.buffReady = true;
+        	//TODO simulate new record being Added and remove the static button toggle
+        	//TestControl.ready = true;
+        	adapter.updateData();
         }
     };
 //-----------------------------
@@ -168,11 +172,12 @@ To prevent multiple instances of services to access the db maybe a static servic
     	    	//String text = (String)status.getText();
     	        String results;
     			
-    			cursor = (SQLiteCursor) adapter.fetchAllData();
-    	        cursor.moveToFirst();
-    	        results = cursor.getString(0)+"\n"+  (new Timestamp(Long.parseLong(cursor.getString(1)))).toString()+"\n"+cursor.getString(2);
-    	        
-    	            	        
+    			Cursor cursor = (SQLiteCursor) adapter.readData();
+    	        cursor.moveToLast();
+    	        results = "--------New Record--------\n" +
+    	        		//"ID: "+cursor.getString(0)+
+    	        		"\nTime: "+ new Timestamp(Long.parseLong(cursor.getString(0))).toGMTString()+
+    	        		"\nLocation: "+cursor.getString(1);	        
     			return results;
     			
     		}

@@ -1,5 +1,8 @@
 package com.Services;
 
+import com.SQLiteDatabaseWrapper.QDFDbAdapter;
+
+import test.Data.TestControl;
 import test.Data.USRPVectorsFrame;
 import android.app.Activity;
 import android.app.Service;
@@ -25,18 +28,20 @@ public class PollingService extends Service {
 	Thread pollThread;
 	PollProcess process;
 	
-    private static String name="PollingServiceThread";
-    	
+
+	private static String name="PollingServiceThread";
+    
 	public PollingService() {
 		super();
 	}
 	
 	@Override
 	public void onCreate(){
-		process =  new PollProcess();
-		process.parent = this;
+				
+		process =  new PollProcess(this);
 		pollThread = new Thread(process);
 		pollThread.setName(name);
+		
 
 	}
 	@Override
@@ -49,7 +54,7 @@ public class PollingService extends Service {
 	@Override	
 	public void onDestroy(){//hmmmm??? need to test
 		//kill the thread, once stopped null it to remove memmory footprint
-		process.allDone=true;
+		process.setAllDone(true);
 		do{
 			if(pollThread.getState()==Thread.State.TERMINATED||pollThread.getState()==Thread.State.BLOCKED){
 				pollThread = null;
@@ -64,9 +69,12 @@ public class PollingService extends Service {
 	public IBinder onBind(Intent arg0) {
 		return null;
 	}
+	//Redundent
 	public void sendBroadcast(Intent intent){
 		super.sendBroadcast(intent);
 	}
+	
+
 	/**
 	 * Now: Polling the static varible to see if it is time to pull new test data
 	 * 
@@ -76,58 +84,91 @@ public class PollingService extends Service {
 	 *Set the Registered Recievers  only = awsome
 	 */
 	public class PollProcess implements Runnable{
-		public boolean allDone;
-		public PollingService parent;
+		private boolean allDone;
 		
+
+
+		private PollingService parent;//for intent handling
+		
+		private boolean status;
+	    private long timestamp;
+		
+	    public PollProcess(PollingService p){
+	    	parent = p;//for intent handling
+	    	status = false;
+	    	timestamp = 0;
+	    	allDone = false;
+	    }
+	    
 		public void run() {
 			while(!allDone){
-				if(USRPVectorsFrame.buffReady){
-
-					//allDone = true;//????
-					//Intent temp = new Intent(parent,act.DebugConsole.DebugConsole.ConsoleBR.class);
-//					Intent temp = new Intent();
-//					temp.setAction(DebugConsole.POLLINGACTION);
-//					temp.setComponent(new ComponentName("act.DebugConsole.DebugConsole","ConsoleBR"));//works :-)
-//-------------------------
-					Intent temp1 = new Intent();
-					temp1.setAction(DebugConsole.POLLINGACTION);				
-//					temp1.setComponent(new ComponentName("act.DebugConsole","ConsoleBRStatic"));
-//-------------------------				
-//					Intent temp3 = new Intent("act.DebugConsole.DebugConsole.ConsoleBR");
-//					temp3.setAction(DebugConsole.ACTION);				
-//					//temp3.setComponent(new ComponentName("act.DebugConsole","ConsoleBRStatic"));
-//-------------------------					
-
-					//parent.sendBroadcast(temp1);
-//					temp.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
-					temp1.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
-//					temp2.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
-//					temp3.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
+				long newTimeStamp = QDFDbAdapter.pollDataTable();
+				
+				status = compareTimestamp(newTimeStamp);
+				if(!status){
+					setTimestamp(newTimeStamp);
 					
-//					parent.sendBroadcast(temp);
-					parent.sendBroadcast(temp1);
-//					parent.sendBroadcast(temp2);
-//					parent.sendBroadcast(temp3);
-					
-					USRPVectorsFrame.buffReady =false;
+					Intent temp = new Intent();
+					temp.setAction(DebugConsole.POLLINGACTION);				
+					temp.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
+					parent.sendBroadcast(temp);
+				}			
+				
+				try{
+					Thread.sleep(1000);//1 second
+					}catch(Exception e){
+						System.out.println("\nBroken: \n");
+						e.printStackTrace();
+					}
+				
+				/*
+				if(TestControl.ready){
+					Intent temp = new Intent();
+					temp.setAction(DebugConsole.POLLINGACTION);				
+					temp.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
+					parent.sendBroadcast(temp);
+
+					TestControl.ready =false;
 					//WORKS
-
-					//this.suspend();
+					
+					
 					
 				}else{
 					try{
 					Thread.sleep(1000);//1 second
 					}catch(Exception e){
-						System.out.println("\nFail: \n");
+						System.out.println("\nBroken: \n");
 						e.printStackTrace();
 					}
-				}//bufferReady
+				}//Ready
+				*/
 			}//while
 		}//run
 
-		
+	    public boolean compareTimestamp(long timestamp) {	
+	    	boolean result = false;
+	    	if (this.timestamp!=0){
+	    		if(this.timestamp == timestamp){
+	    			result = true;
+	    		}
+	    	}
+	    	
+	    	return result;
+		}
+
+		public void setTimestamp(long timestamp) {
+			this.timestamp = timestamp;
+		}
+		public boolean isAllDone() {
+			return allDone;
+		}
+
+		public void setAllDone(boolean allDone) {
+			this.allDone = allDone;
+		}
 	
-	}
+	}//Polling Process
+	
 	
 }//Polling service
 /*

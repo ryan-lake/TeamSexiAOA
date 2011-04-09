@@ -20,7 +20,14 @@ import android.os.IBinder;
  * The primary reason that this is an independent service is to make it independent
  *  of any particular Activity. 
  *  
- * FIXME Implement a Binder for the service 
+ *  Note: will have handshaking with 
+ *  
+ * TODO
+ * Defaults will be 
+ *  .5 - sec dwell time
+    18,525,000,000 kil - center freq. 18.525 Mega Hz 
+ *  
+ * FIXME Implement a Binder for the service ?
  * If this proves to be an issue, we can move to have the service be bound to what 
  * ever active GUI is present. 
  * 		Service Manager might be required at that point
@@ -65,6 +72,7 @@ public class QDFDbAdapter{
     //Table 1 Keys
     public static final String DWELLTIME= "dwelltime";//assumed Seconds*Proabbly will need to change*
     public static final String CENTERFREQ= "centerfreq";
+    public static final String READ = "read";
     
     
     //Table 2:
@@ -96,19 +104,19 @@ public class QDFDbAdapter{
      */
     //Commad Array?
     public static final String COMMAND_CREATE_TABLE_SETTINGS= "CREATE TABLE "+SETTINGSTABLENAME+" ( "+
-    		ID +" INTEGER NOT NULL, "+
-    		TIMESTAMP + " TIMESTAMP PRIMARY KEY, "+
+    		//ID +" INTEGER NOT NULL, "+
+    		TIMESTAMP + " INTEGER PRIMARY KEY, "+
     		DWELLTIME + " INTEGER NOT NULL, "+
-    		CENTERFREQ + " INTEGER NOT NULL);";
+    		CENTERFREQ + " INTEGER NOT NULL, " +
+    		READ +" INTEGER NOT NULL);";
     
     public static final String COMMAND_CREATE_TABLE_DATA= "CREATE TABLE "+DATATABLENAME+ " ( "+
-			ID + " INTEGER NOT NULL, "+
-			//TIMESTAMP + " TIMESTAMP PRIMARY KEY, "+
-			TIMESTAMP + " TEXT NOT NULL, "+
+			//ID + " INTEGER NOT NULL, "+
+			TIMESTAMP + " INTEGER PRIMARY KEY, "+
    			LOCATION + " INTEGER NOT NULL);";
     ////////////////////////Local variables	
 	
-    private SQLiteDatabase mDb;//we only want this class manipulating the database
+    private static SQLiteDatabase mDb;//we only want this class manipulating the database
     private final Context mContext;
     private QDFDbHelper mDbHelper;
     
@@ -127,13 +135,11 @@ public class QDFDbAdapter{
     //public QDFDbService open() throws SQLException {
 
     
-    public long open() throws SQLException {        
+    public QDFDbAdapter open() throws SQLException {        
     	mDbHelper = new QDFDbHelper(mContext);
         mDb = mDbHelper.getWritableDatabase();
         
-        //Preload Test vectors
-        //SQLLoad.load(mDb);
-        return (SQLLoad.load(mDb));
+        return this;
     }
     
     
@@ -144,43 +150,123 @@ public class QDFDbAdapter{
     
     
     /////Test functions
-    public Cursor fetchAllData() {//Test
-
-        return mDb.query(this.DATATABLENAME, new String[] {this.ID,this.TIMESTAMP,this.LOCATION},
+//    public Cursor fetchAllData() {//Test
+//        return mDb.query(this.DATATABLENAME, new String[] {this.TIMESTAMP,this.LOCATION},
+//        		null, null, null, null, null);
+//    }
+    @Deprecated
+    public Cursor readSettings(){
+        return mDb.query(this.SETTINGSTABLENAME, new String[] {this.TIMESTAMP,this.DWELLTIME,this.CENTERFREQ,this.READ},
         		null, null, null, null, null);
     }
+    @Deprecated
+    public long updateData(	){ 	
+    	return SQLLoad.loadData(mDb);
+    }
+   public void loadTestData(){
+	   long status; //for debug
+	   if(mDb!=null){
+		  status= SQLLoad.loadSettings(mDb);
+		  status = SQLLoad.loadData(mDb);
+
+	   }
+   }
+
+
     
-    public boolean purge(){//clear the Database
+
+    
+    public boolean purgeAll(){//clear the Database
     	long temp = -1;
-    	try{
-    	if(mDb !=null){
-    		return (mDb.delete(DATATABLENAME, null, null)>0) && (mDb.delete(SETTINGSTABLENAME, null, null)>0);
-    	}
-    	}catch(Exception e){
-    		//Database is empty?
-    	}
-    	return  false;
+    	long temp2 = -1;
+    	
+    	temp = this.purgeData();
+    	temp2 = this.purgeSettings();
+    		
+    	return  (temp>-1&&temp2>-1);
     	
     }
     
     //////TAble specific
     
+/**
+	-----------Data Table--------------    
+*/
+    public long purgeData(){
+    	long temp = -1;
+    	
+    	try{
+    	if(mDb !=null){
+    		temp = mDb.delete(DATATABLENAME, null, null);
+    	}
+    	}catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	return temp;
+    }
+
+    public void setup(){};
+
+    /**
+     * pollDataTable will only look at the currect time stamp of the data table
+     *
+     */
+    public static long pollDataTable(){
+    	if(mDb!= null){
+    		Cursor c = mDb.query(QDFDbAdapter.DATATABLENAME, new String[] {QDFDbAdapter.TIMESTAMP},
+    				null, null, null, null, null);
+    		c.moveToLast();
+    		c.getString(0);
+    	return Long.parseLong(c.getString(0));
+    	}
+    	return -1;
+    }
+    
+    
+    //Read data table
+    public Cursor readData(){
+    return mDb.query(this.DATATABLENAME, new String[] {this.TIMESTAMP,this.LOCATION},
+    		null, null, null, null, null);
+}
+    /**
+    					-----------Settings Table--------------    
+    */
+    /**
+     * Removes previous entries,and place new data in the settigns table 
+     */
     public long updateSettings(int dwellTime, int centerFreque) {
         ContentValues initialValues = new ContentValues();
+        
+        
+        initialValues.put(QDFDbAdapter.TIMESTAMP , System.currentTimeMillis());
+        
         initialValues.put(this.DWELLTIME, dwellTime);
         initialValues.put(this.CENTERFREQ, centerFreque);
+        initialValues.put(this.READ, 0);
 
         return mDb.insert(this.SETTINGSTABLENAME, null, initialValues);
     }
     
+    public long purgeSettings(){
+    	long temp = -1;
+    	
+    	try{
+    	if(mDb !=null){
+    		temp =mDb.delete(SETTINGSTABLENAME, null, null);
+    	}
+    	}catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	return temp;
+    }
+    
+
         
 ///////////////////Helper Class to perform all the SQLite DB accesses and commands
 	private static class QDFDbHelper extends SQLiteOpenHelper {
 
 		public QDFDbHelper(Context context, String name, CursorFactory factory,
 				int version) {
-			// TODO may need Cursor factory
-			
 			super(context, DBNAME, null, DBVERSION);
 			
 		}
