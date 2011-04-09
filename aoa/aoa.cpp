@@ -1,25 +1,17 @@
 #include <uhd/utils/thread_priority.hpp>
 #include <uhd/utils/safe_main.hpp>
 #include <uhd/usrp/multi_usrp.hpp>
+#include <uhd/types/device_addr.hpp>
 #include <boost/program_options.hpp>
 #include <boost/format.hpp>
 #include <boost/thread.hpp>
 #include <iostream>
 #include <fstream>
 #include <complex>
+#include <math.h>
 
+#define PI 3.1415926535897932384626433832795
 
-//initialize to base values
-size_t total_num_samps;
-    double rate, freq, gain, bandwidth, p1, p2, direction, num, den;
-    double array[4]=0; //corresponding to e,w,n,s
-    
-    bool toggle, east, north = false;
-
-rate =    	4000000;
-freq = 	     1852500000; //sprint band
-bandwidth =     1250000;
-total_num_samps=  10000; //or some function of dwell time and samp rate
 
 
 // toggle determines which antenna pair is being used
@@ -27,10 +19,23 @@ total_num_samps=  10000; //or some function of dwell time and samp rate
 
 
 int UHD_SAFE_MAIN(int argc, char *argv[]){
+    //initialize to base values
+	size_t total_num_samps;
+	double rate, freq, gain, bandwidth, p1, p2, direction, num, den;
+	double array[4]={0,0,0,0}; //corresponding to e,w,n,s
+	bool toggle, east, north, update = false;
+
+	rate =    	4000000;
+	freq = 	     1852500000; //sprint band
+	bandwidth =     1250000;
+	total_num_samps=  10000; //or some function of dwell time and samp rate
+	uhd::device_addr_t dev_addr;	
+    
     uhd::set_thread_priority_safe();
 
+
     //create a usrp device w/ 2 antennas
-    uhd::usrp::multi_usrp::sptr usrp = uhd::usrp::multi_usrp::make(args);
+    uhd::usrp::multi_usrp::sptr usrp = uhd::usrp::multi_usrp::make(dev_addr);//need arguments
 
     //set the rx sample rate   
     usrp->set_rx_rate(rate);
@@ -135,7 +140,7 @@ while(1){
 
 
 }
-
+}
 
 /*   old stuff
 
