@@ -1,0 +1,4 @@
+git add -A
+git commit
+git push -m "<message>"
+<Enter password>
