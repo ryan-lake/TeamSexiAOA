@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+  xmlns:android="http://schemas.android.com/apk/res/android"
+  android:layout_width="wrap_content"
+  android:layout_height="wrap_content"
+   android:orientation="vertical" android:background="@drawable/desertstrike">
+<FrameLayout android:layout_height="wrap_content" android:id="@+id/frameLayout2" android:layout_width="match_parent" android:paddingLeft="60dip" android:paddingRight="60dip" android:paddingTop="60dip" android:paddingBottom="30dip">
+    <RelativeLayout android:layout_height="wrap_content" android:background="#ffcccccc" android:id="@+id/relativeLayout1" android:layout_width="wrap_content">
+        <RadioButton android:layout_alignLeft="@+id/radioButton1" android:layout_width="40dip" android:layout_alignRight="@+id/radioButton1" android:id="@+id/RadioButton03" android:text="RadioButton" android:layout_below="@+id/radioButton1" android:layout_height="40dip"></RadioButton>
+        <RadioButton android:layout_alignLeft="@+id/RadioButton03" android:layout_width="40dip" android:layout_alignRight="@+id/RadioButton03" android:id="@+id/RadioButton14" android:text="RadioButton" android:layout_below="@+id/RadioButton03" android:layout_height="40dip"></RadioButton>
+        <RadioButton android:layout_alignLeft="@+id/RadioButton14" android:layout_width="40dip" android:layout_alignRight="@+id/RadioButton14" android:id="@+id/RadioButton15" android:text="RadioButton" android:layout_below="@+id/RadioButton14" android:layout_height="40dip"></RadioButton>
+        <RadioButton android:layout_alignLeft="@+id/RadioButton15" android:layout_width="40dip" android:layout_alignRight="@+id/RadioButton15" android:id="@+id/RadioButton16" android:text="RadioButton" android:layout_below="@+id/RadioButton15" android:layout_height="40dip"></RadioButton>
+        <RadioButton android:layout_width="40dip" android:id="@+id/RadioButton01" android:text="RadioButton" android:layout_toRightOf="@+id/radioButton1" android:layout_alignBottom="@+id/radioButton2" android:layout_height="40dip" android:layout_alignTop="@+id/radioButton1"></RadioButton>
+        <RadioButton android:layout_width="40dip" android:id="@+id/RadioButton05" android:text="RadioButton" android:layout_toRightOf="@+id/RadioButton01" android:layout_alignBottom="@+id/RadioButton3" android:layout_height="40dip" android:layout_alignTop="@+id/RadioButton01"></RadioButton>
+        <RadioButton android:layout_width="40dip" android:id="@+id/RadioButton04" android:text="RadioButton" android:layout_toRightOf="@+id/RadioButton05" android:layout_alignBottom="@+id/RadioButton4" android:layout_height="40dip" android:layout_alignTop="@+id/RadioButton05"></RadioButton>
+        <RadioButton android:layout_width="40dip" android:id="@+id/RadioButton02" android:text="RadioButton" android:layout_toRightOf="@+id/RadioButton04" android:layout_alignBottom="@+id/RadioButton5" android:layout_height="40dip" android:layout_alignTop="@+id/RadioButton04"></RadioButton>
+        <RadioButton android:layout_alignLeft="@+id/RadioButton6" android:layout_width="40dip" android:layout_alignRight="@+id/RadioButton02" android:id="@+id/RadioButton06" android:text="RadioButton" android:layout_below="@+id/RadioButton02" android:layout_height="40dip"></RadioButton>
+        <RadioButton android:layout_alignLeft="@+id/RadioButton06" android:layout_width="40dip" android:layout_alignRight="@+id/RadioButton06" android:id="@+id/RadioButton07" android:text="RadioButton" android:layout_below="@+id/RadioButton06" android:layout_height="40dip"></RadioButton>
+        <RadioButton android:layout_alignLeft="@+id/RadioButton07" android:layout_width="40dip" android:layout_alignRight="@+id/RadioButton07" android:id="@+id/RadioButton11" android:text="RadioButton" android:layout_below="@+id/RadioButton07" android:layout_height="40dip"></RadioButton>
+        <RadioButton android:layout_alignLeft="@+id/RadioButton11" android:layout_width="40dip" android:layout_alignRight="@+id/RadioButton11" android:id="@+id/RadioButton10" android:text="RadioButton" android:layout_below="@+id/RadioButton11" android:layout_height="40dip"></RadioButton>
+        <RadioButton android:layout_width="40dip" android:id="@+id/RadioButton13" android:text="RadioButton" android:layout_toLeftOf="@+id/RadioButton10" android:layout_alignBottom="@+id/RadioButton10" android:layout_height="40dip" android:layout_alignTop="@+id/RadioButton10"></RadioButton>
+        <RadioButton android:layout_width="40dip" android:id="@+id/RadioButton09" android:text="RadioButton" android:layout_toLeftOf="@+id/RadioButton13" android:layout_alignBottom="@+id/RadioButton13" android:layout_height="40dip" android:layout_alignTop="@+id/RadioButton13"></RadioButton>
+        <RadioButton android:layout_width="40dip" android:id="@+id/RadioButton12" android:text="RadioButton" android:layout_toLeftOf="@+id/RadioButton09" android:layout_alignBottom="@+id/RadioButton09" android:layout_height="40dip" android:layout_alignTop="@+id/RadioButton09"></RadioButton>
+        <RadioButton android:layout_width="40dip" android:id="@+id/radioButton1" android:text="RadioButton" android:layout_alignParentLeft="true" android:layout_height="40dip"></RadioButton>
+        <FrameLayout android:id="@+id/frameLayout4" android:layout_below="@+id/radioButton1" android:layout_toRightOf="@+id/radioButton1" android:layout_width="120dip" android:layout_height="120dip">
+            <AnalogClock android:layout_height="wrap_content" android:id="@+id/analogClock1" android:layout_width="wrap_content"></AnalogClock>
+        </FrameLayout>
+    </RelativeLayout>
+</FrameLayout>
+<FrameLayout android:layout_height="wrap_content" android:id="@+id/frameLayout3" android:layout_width="match_parent" android:paddingBottom="10dip" android:paddingLeft="40dip" android:paddingRight="50dip" android:paddingTop="10dip">
+    <TableLayout android:id="@+id/tableLayout1" android:layout_width="wrap_content" android:layout_height="wrap_content">
+        <TableRow android:id="@+id/tableRow1" android:layout_width="wrap_content" android:layout_height="wrap_content">
+            <Button android:text="Update" android:layout_width="wrap_content" android:layout_height="60dip" android:id="@+id/updateSettingsButton"></Button>
+            <Button android:text="Console" android:id="@+id/toggleToConButton" android:layout_width="wrap_content" android:layout_height="60dip"></Button>
+        </TableRow>
+        <TableRow android:id="@+id/tableRow2" android:layout_height="wrap_content" android:layout_width="wrap_content">
+            <TextView android:paddingTop="5dip" android:text="Dwell Time" android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingBottom="5dip" android:id="@+id/labelDwellTime"></TextView>
+            <EditText android:text="0.5 Sec." android:layout_width="wrap_content" android:id="@+id/editText1" android:layout_height="50dip"></EditText>
+        </TableRow>
+        <TableRow android:id="@+id/tableRow3" android:layout_width="wrap_content" android:layout_height="wrap_content">
+        	<TextView android:paddingTop="5dip" android:text="Center Frequency" android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingBottom="5dip" android:id="@+id/labelCenterFreq"></TextView>
+            <EditText android:text="18.5252 MHz " android:layout_width="wrap_content" android:id="@+id/editText1" android:layout_height="wrap_content"></EditText>       
+        </TableRow>
+    </TableLayout>
+</FrameLayout>
+
+</LinearLayout>

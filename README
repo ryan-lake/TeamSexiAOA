@@ -1,4 +1,10 @@
+To Commit:
+----------
 git add -A
-git commit
-git push -m "<message>"
+git commit -m "<messgae>"
+git push 
 <Enter password>
+
+To update local:
+---------------
+git pull

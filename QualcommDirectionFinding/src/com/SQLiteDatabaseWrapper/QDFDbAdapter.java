@@ -1,7 +1,6 @@
 package com.SQLiteDatabaseWrapper;
 
 import test.Data.SQLLoad;
-import act.DebugConsole.R;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
@@ -145,6 +144,7 @@ public class QDFDbAdapter{
     
     public void close() {
         mDbHelper.close();
+        mDb.close();
     }
     
     
@@ -212,12 +212,23 @@ public class QDFDbAdapter{
      *
      */
     public static long pollDataTable(){
-    	if(mDb!= null){
+    	long temp = 0;
+    	if(mDb!= null && mDb.isOpen()){
     		Cursor c = mDb.query(QDFDbAdapter.DATATABLENAME, new String[] {QDFDbAdapter.TIMESTAMP},
     				null, null, null, null, null);
     		c.moveToLast();
-    		c.getString(0);
-    	return Long.parseLong(c.getString(0));
+    		if(c.moveToLast()){
+    			temp = Long.parseLong(c.getString(0));
+    		}
+    		/*
+    		try{
+    			temp = Long.parseLong(c.getString(0));//first entry should be timestamp
+    		}catch(Exception e){
+    			temp = 0;
+    		}
+    		*/
+    		c.close();
+    	return temp;
     	}
     	return -1;
     }

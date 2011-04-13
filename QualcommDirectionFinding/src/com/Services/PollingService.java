@@ -4,15 +4,11 @@ import com.SQLiteDatabaseWrapper.QDFDbAdapter;
 
 import test.Data.TestControl;
 import test.Data.USRPVectorsFrame;
-import android.app.Activity;
 import android.app.Service;
-import android.content.ComponentName;
 import android.content.Intent;
 import android.os.IBinder;
-import android.view.View;
-import android.widget.TextView;
-import act.DebugConsole.DebugConsole;
-import act.DebugConsole.R;
+import act.QDF.DebugConsole;
+import act.QDF.QDFGUI;
 /**
  * 
  * This Service should preform the basic operation of pooling a SQLite DB 
@@ -47,13 +43,25 @@ public class PollingService extends Service {
 	@Override
 	public int onStartCommand(Intent intent,int flags,int startId){
 		//handleCommand(intent);
-		pollThread.start();
+		
+			if(pollThread.isAlive()){//Somthing to update the current threads fields
+			}		
+			else{
+				pollThread.start();
+			}
+			/*
+			try{
+		}catch(Exception e){
+			e.printStackTrace();//TODO Might need some better way to handle this
+		}
+	*/	
 		return START_STICKY;
 	}
 	
 	@Override	
 	public void onDestroy(){//hmmmm??? need to test
 		//kill the thread, once stopped null it to remove memmory footprint
+		
 		process.setAllDone(true);
 		do{
 			if(pollThread.getState()==Thread.State.TERMINATED||pollThread.getState()==Thread.State.BLOCKED){
@@ -87,7 +95,6 @@ public class PollingService extends Service {
 		private boolean allDone;
 		
 
-
 		private PollingService parent;//for intent handling
 		
 		private boolean status;
@@ -104,44 +111,35 @@ public class PollingService extends Service {
 			while(!allDone){
 				long newTimeStamp = QDFDbAdapter.pollDataTable();
 				
+				if(timestamp == 0 && newTimeStamp != 0){
+					//load default value but only if its a good value
+					setTimestamp(newTimeStamp);
+				}
 				status = compareTimestamp(newTimeStamp);
+				
 				if(!status){
 					setTimestamp(newTimeStamp);
 					
 					Intent temp = new Intent();
-					temp.setAction(DebugConsole.POLLINGACTION);				
+					temp.setAction(DebugConsole.POLLINGACTION);	
+					temp.setAction(QDFGUI.POLLINGACTION);
+					
 					temp.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
-					parent.sendBroadcast(temp);
+					
+					if(parent!=null){
+						parent.sendBroadcast(temp);
+					}else{
+						parent.getApplication();
+					}
 				}			
 				
 				try{
-					Thread.sleep(1000);//1 second
+					Thread.sleep(500);//1 second
 					}catch(Exception e){
 						System.out.println("\nBroken: \n");
 						e.printStackTrace();
 					}
-				
-				/*
-				if(TestControl.ready){
-					Intent temp = new Intent();
-					temp.setAction(DebugConsole.POLLINGACTION);				
-					temp.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
-					parent.sendBroadcast(temp);
 
-					TestControl.ready =false;
-					//WORKS
-					
-					
-					
-				}else{
-					try{
-					Thread.sleep(1000);//1 second
-					}catch(Exception e){
-						System.out.println("\nBroken: \n");
-						e.printStackTrace();
-					}
-				}//Ready
-				*/
 			}//while
 		}//run
 
@@ -167,66 +165,5 @@ public class PollingService extends Service {
 			this.allDone = allDone;
 		}
 	
-	}//Polling Process
-	
-	
+	}//Polling Process	
 }//Polling service
-/*
-class PollingThread extends Thread{
-/*Due to the Depreciation of the Thread.stop(), Thread.destroy()
- *I've chosen to use a class boolean field to allow the run method 
- *to return safely.
- 
-	public boolean allDone;
-	
-	public PollingThread(""){
-		 super();
-		 allDone=false;
-	 }
-	@Override
-	public void run() {
-		while(!allDone){
-			if(TESTVECTORS.buffReady){
-				/** TODO Spawn, New Thread or AsynchTask for Algorithm calculations
-				 *Create a new Algorithm service(AsynchTask) and spawn a thread with -in the
-				 *service. When termnated called UPdate UI.
-				 *
-				 *OR
-				 *
-				 *Since AsyncTask, Fire Intent aimed at the Activity
-				 *
-				 *OR
-				 *
-				 *Bind new service to this service
-				 *
-				 *OR
-				 *
-				 *We just exit the thread... pick up where runable ends
-				 /
-				//allDone = true;//????
-				
-
-				//11:16am
-				//
-				//this.suspend();
-				
-			}else{
-				try{
-				Thread.sleep(1000);//1 second
-				}catch(Exception e){
-					System.out.println("\nFail: \n");
-					e.printStackTrace();
-				}
-			}//bufferReady
-		}//while
-	}//run
-	
-	public boolean isAllDone() {	
-		return allDone;
-	}
-	public void setAllDone(boolean allDone) {
-		this.allDone = allDone;
-	}
-}//pollingThread
-	*/
-

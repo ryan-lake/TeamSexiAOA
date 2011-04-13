@@ -1,0 +1,81 @@
+/*
+class PollingThread extends Thread{
+/*Due to the Depreciation of the Thread.stop(), Thread.destroy()
+ *I've chosen to use a class boolean field to allow the run method 
+ *to return safely.
+ 
+	public boolean allDone;
+	
+	public PollingThread(""){
+		 super();
+		 allDone=false;
+	 }
+	@Override
+	public void run() {
+		while(!allDone){
+			if(TESTVECTORS.buffReady){
+				/** TODO Spawn, New Thread or AsynchTask for Algorithm calculations
+				 *Create a new Algorithm service(AsynchTask) and spawn a thread with -in the
+				 *service. When termnated called UPdate UI.
+				 *
+				 *OR
+				 *
+				 *Since AsyncTask, Fire Intent aimed at the Activity
+				 *
+				 *OR
+				 *
+				 *Bind new service to this service
+				 *
+				 *OR
+				 *
+				 *We just exit the thread... pick up where runable ends
+				 /
+				//allDone = true;//????
+				
+
+				//11:16am
+				//
+				//this.suspend();
+				
+			}else{
+				try{
+				Thread.sleep(1000);//1 second
+				}catch(Exception e){
+					System.out.println("\nFail: \n");
+					e.printStackTrace();
+				}
+			}//bufferReady
+		}//while
+	}//run
+	
+	public boolean isAllDone() {	
+		return allDone;
+	}
+	public void setAllDone(boolean allDone) {
+		this.allDone = allDone;
+	}
+}//pollingThread
+	*/
+/////////////////Old run process
+				
+				/*
+				if(TestControl.ready){
+					Intent temp = new Intent();
+					temp.setAction(DebugConsole.POLLINGACTION);				
+					temp.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
+					parent.sendBroadcast(temp);
+
+					TestControl.ready =false;
+					//WORKS
+					
+					
+					
+				}else{
+					try{
+					Thread.sleep(1000);//1 second
+					}catch(Exception e){
+						System.out.println("\nBroken: \n");
+						e.printStackTrace();
+					}
+				}//Ready
+				*/

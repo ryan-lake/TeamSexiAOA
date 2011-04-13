@@ -1,18 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-      package="act.DebugConsole"
+
       android:versionCode="1"
-      android:versionName="1.0">
+      android:versionName="1.0" package="act.QDF">
     <uses-sdk android:minSdkVersion="8" />
 
     <application android:icon="@drawable/quallogo" android:label="@string/app_name">
-        <activity android:name="DebugConsole"
-                  android:label="@string/app_name">
+        <activity android:label="@string/app_name_con" android:name="DebugConsole"></activity>
+<activity android:label="@string/app_name" android:name="QDFGUI">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:enabled="true" android:name="com.Services.PollingService" android:exported="false"></service>
+        
+        <service android:enabled="true"
+         android:name="com.Services.PollingService" 
+         android:exported="false"></service>
     </application>
 </manifest>
