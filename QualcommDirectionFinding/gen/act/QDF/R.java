@@ -8,6 +8,10 @@
 package act.QDF;
 
 public final class R {
+    public static final class array {
+        public static final int freq_array=0x7f060001;
+        public static final int time_array=0x7f060000;
+    }
     public static final class attr {
     }
     public static final class dimen {
@@ -19,45 +23,49 @@ public final class R {
         public static final int quallogo=0x7f020002;
     }
     public static final class id {
-        public static final int RadioButton01=0x7f06000b;
-        public static final int RadioButton02=0x7f060011;
-        public static final int RadioButton03=0x7f060007;
-        public static final int RadioButton04=0x7f06000f;
-        public static final int RadioButton05=0x7f06000d;
-        public static final int RadioButton06=0x7f060014;
-        public static final int RadioButton07=0x7f060015;
-        public static final int RadioButton09=0x7f060019;
-        public static final int RadioButton10=0x7f060017;
-        public static final int RadioButton11=0x7f060016;
-        public static final int RadioButton12=0x7f06001a;
-        public static final int RadioButton13=0x7f060018;
-        public static final int RadioButton14=0x7f060008;
-        public static final int RadioButton15=0x7f060009;
-        public static final int RadioButton16=0x7f06000a;
-        public static final int RadioButton3=0x7f06000e;
-        public static final int RadioButton4=0x7f060010;
-        public static final int RadioButton5=0x7f060012;
-        public static final int RadioButton6=0x7f060013;
-        public static final int StatusText=0x7f060000;
-        public static final int analogClock1=0x7f06001c;
-        public static final int editText1=0x7f060024;
-        public static final int frameLayout2=0x7f060004;
-        public static final int frameLayout3=0x7f06001d;
-        public static final int frameLayout4=0x7f06001b;
-        public static final int labelCenterFreq=0x7f060026;
-        public static final int labelDwellTime=0x7f060023;
-        public static final int radioButton1=0x7f060006;
-        public static final int radioButton2=0x7f06000c;
-        public static final int relativeLayout1=0x7f060005;
-        public static final int relativeLayoutButtonPnel=0x7f060001;
-        public static final int tableLayout1=0x7f06001e;
-        public static final int tableRow1=0x7f06001f;
-        public static final int tableRow2=0x7f060022;
-        public static final int tableRow3=0x7f060025;
-        public static final int toggleToConButton=0x7f060021;
-        public static final int toggleToGUIButton=0x7f060003;
-        public static final int updateSettingsButton=0x7f060020;
-        public static final int updater=0x7f060002;
+        public static final int RadioButton01=0x7f07000b;
+        public static final int RadioButton02=0x7f070011;
+        public static final int RadioButton03=0x7f070007;
+        public static final int RadioButton04=0x7f07000f;
+        public static final int RadioButton05=0x7f07000d;
+        public static final int RadioButton06=0x7f070014;
+        public static final int RadioButton07=0x7f070015;
+        public static final int RadioButton09=0x7f070019;
+        public static final int RadioButton10=0x7f070017;
+        public static final int RadioButton11=0x7f070016;
+        public static final int RadioButton12=0x7f07001a;
+        public static final int RadioButton13=0x7f070018;
+        public static final int RadioButton14=0x7f070008;
+        public static final int RadioButton15=0x7f070009;
+        public static final int RadioButton16=0x7f07000a;
+        public static final int RadioButton3=0x7f07000e;
+        public static final int RadioButton4=0x7f070010;
+        public static final int RadioButton5=0x7f070012;
+        public static final int RadioButton6=0x7f070013;
+        public static final int StatusText=0x7f070000;
+        public static final int analogClock1=0x7f07001c;
+        public static final int editText1=0x7f070025;
+        public static final int frameLayout2=0x7f070004;
+        public static final int frameLayout3=0x7f07001d;
+        public static final int frameLayout4=0x7f07001b;
+        public static final int labelCenterFreq=0x7f070028;
+        public static final int labelDwellTime=0x7f070023;
+        public static final int radioButton1=0x7f070006;
+        public static final int radioButton2=0x7f07000c;
+        public static final int relativeLayout1=0x7f070005;
+        public static final int relativeLayout2=0x7f070024;
+        public static final int relativeLayout3=0x7f070029;
+        public static final int relativeLayoutButtonPnel=0x7f070001;
+        public static final int spinnerFreq=0x7f07002a;
+        public static final int spinnerTime=0x7f070026;
+        public static final int tableLayout1=0x7f07001e;
+        public static final int tableRow1=0x7f07001f;
+        public static final int tableRow2=0x7f070022;
+        public static final int tableRow3=0x7f070027;
+        public static final int toggleToConButton=0x7f070021;
+        public static final int toggleToGUIButton=0x7f070003;
+        public static final int updateSettingsButton=0x7f070020;
+        public static final int updater=0x7f070002;
     }
     public static final class layout {
         public static final int debug=0x7f030000;
@@ -67,6 +75,8 @@ public final class R {
     public static final class string {
         public static final int app_name=0x7f050000;
         public static final int app_name_con=0x7f050001;
+        public static final int freq_prompt=0x7f050004;
+        public static final int string_prompt=0x7f050003;
         public static final int welcome_tile=0x7f050002;
     }
 }

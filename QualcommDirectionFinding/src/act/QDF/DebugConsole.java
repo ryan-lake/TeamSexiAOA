@@ -3,6 +3,7 @@ package act.QDF;
 import java.sql.Timestamp;
 
 import com.SQLiteDatabaseWrapper.QDFDbAdapter;
+import com.Services.PollingService;
 
 import act.QDF.R;
 
@@ -104,14 +105,12 @@ To prevent multiple instances of services to access the db maybe a static servic
 //        		new UIUpdateTask().execute(status.getText()); 
 //            }
 //        };
-        this.mBR = new BroadcastReceiver() {
-        	
+        this.mBR = new BroadcastReceiver() {      	
        	            @Override
         	            public void onReceive(Context context, Intent intent) {
-        	        		//TextView status = (TextView) findViewById(R.id.StatusText);        		
-        	        	//	
-       	            	new UIUpdateTask().execute(); 
-        	        		
+       	            	/*Only thing that has this class registered should be
+       	            	the polling function thus we dont need to check the intent*/
+       	            		new UIUpdateTask().execute();        	        		
         	            }
         	        };
         
@@ -146,6 +145,21 @@ To prevent multiple instances of services to access the db maybe a static servic
         mAdapter.loadTestData();
         */
     }
+    
+    @Override
+    public void  onResume(){
+    	super.onResume();
+    	
+        this.registerReceiver(this.mBR, mConsoleIf);
+        
+        if(!PollingService.isRunning()){//Probably a better way to check but need working
+        	this.startService(new Intent(this,com.Services.PollingService.class));        
+        }
+        
+        mAdapter.open();
+        mAdapter.purgeAll();//testing
+        mAdapter.loadTestData();
+    }
     @Override
     public void onPause(){
     	super.onPause();
@@ -164,26 +178,12 @@ To prevent multiple instances of services to access the db maybe a static servic
     public void onDestroy(){
     	//this.unregisterReceiver(receiver)
     	super.onDestroy();
-    	
+    	if(!PollingService.isRunning()){
+    		this.stopService(new Intent(this,com.Services.PollingService.class));   		
+    	}   	
     	mAdapter.close();
     }
-    @Override
-    public void  onResume(){
-    	super.onResume();
-    	
-        this.registerReceiver(this.mBR, mConsoleIf);
-        
-        try{//service might have already been started
-        	this.startService(new Intent(this,com.Services.PollingService.class));        
-        }catch(Exception e){
-        	e.printStackTrace();
-        }
-        mAdapter.open();
-        mAdapter.purgeAll();//testing
-        mAdapter.loadTestData();
-    	
-    
-    }
+
     //////Helper
     public void updateGUI(String newValue){
     	TextView status = (TextView) findViewById(R.id.StatusText);
@@ -195,9 +195,8 @@ To prevent multiple instances of services to access the db maybe a static servic
 
     	Intent temp = new Intent(this,act.QDF.QDFGUI.class);
 		temp.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-		//this.stopService(new Intent(this,com.Services.PollingService.class));
 		startActivity(temp);
-		this.finish();
+		//this.finish();
 		
     }
     

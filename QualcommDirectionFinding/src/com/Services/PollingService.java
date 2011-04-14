@@ -4,6 +4,8 @@ import com.SQLiteDatabaseWrapper.QDFDbAdapter;
 
 import test.Data.TestControl;
 import test.Data.USRPVectorsFrame;
+import android.app.ActivityManager;
+import android.app.Application;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
@@ -24,6 +26,8 @@ public class PollingService extends Service {
 	Thread pollThread;
 	PollProcess process;
 	
+	private static boolean mRunning =false;
+	
 
 	private static String name="PollingServiceThread";
     
@@ -31,20 +35,27 @@ public class PollingService extends Service {
 		super();
 	}
 	
+	public static boolean isRunning(){
+		return mRunning;
+	}
+	
+	private static void setRunning(boolean started){
+		mRunning = started;
+	}
+	
 	@Override
 	public void onCreate(){
 				
-		process =  new PollProcess(this);
+		process =  new PollProcess(this.getApplication());
 		pollThread = new Thread(process);
 		pollThread.setName(name);
-		
-
 	}
 	@Override
 	public int onStartCommand(Intent intent,int flags,int startId){
 		//handleCommand(intent);
-		
-			if(pollThread.isAlive()){//Somthing to update the current threads fields
+		setRunning(true);
+			if(pollThread.isAlive()){
+				//process.allDone= true; 
 			}		
 			else{
 				pollThread.start();
@@ -63,11 +74,15 @@ public class PollingService extends Service {
 		//kill the thread, once stopped null it to remove memmory footprint
 		
 		process.setAllDone(true);
+		setRunning(false);
+		/*
 		do{
 			if(pollThread.getState()==Thread.State.TERMINATED||pollThread.getState()==Thread.State.BLOCKED){
 				pollThread = null;
 			}
 		}while(pollThread!=null);
+		*/
+
 	}
 
 	@Override
@@ -95,13 +110,15 @@ public class PollingService extends Service {
 		private boolean allDone;
 		
 
-		private PollingService parent;//for intent handling
+		//private PollingService parent;//for intent handling
 		
 		private boolean status;
 	    private long timestamp;
+	    private Application app;
 		
-	    public PollProcess(PollingService p){
-	    	parent = p;//for intent handling
+	    public PollProcess(Application a){
+	    	
+	    	app = a;
 	    	status = false;
 	    	timestamp = 0;
 	    	allDone = false;
@@ -126,11 +143,8 @@ public class PollingService extends Service {
 					
 					temp.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
 					
-					if(parent!=null){
-						parent.sendBroadcast(temp);
-					}else{
-						parent.getApplication();
-					}
+					//if(app!=null){
+						app.sendBroadcast(temp);
 				}			
 				
 				try{
@@ -164,6 +178,8 @@ public class PollingService extends Service {
 		public void setAllDone(boolean allDone) {
 			this.allDone = allDone;
 		}
+		
+		
 	
 	}//Polling Process	
 }//Polling service
