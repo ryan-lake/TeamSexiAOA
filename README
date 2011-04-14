@@ -8,3 +8,10 @@ git push
 To update local:
 ---------------
 git pull
+
+Emulator Specs
+--------------
+Android 2.2
+API Level 8
+SD Card 9MB
+WVGA800
