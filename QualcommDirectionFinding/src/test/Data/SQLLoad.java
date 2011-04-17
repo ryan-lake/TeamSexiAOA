@@ -12,7 +12,7 @@ public class SQLLoad {
 	/**
 	 * Load Test vectors in to the data table
 	 * 
-	 * Timestamp will be set based ont he system clock 
+	 * Timestamp will be set based one he system clock 
 	 * 
 	 * Data will change every time its called. 
 	 * 
@@ -20,9 +20,9 @@ public class SQLLoad {
 	public static long loadData(SQLiteDatabase sqlDb){
 		if(sqlDb != null){
         ContentValues initialValues = new ContentValues();
-        initialValues.put(QDFDbAdapter.TIMESTAMP , System.currentTimeMillis());
+        //initialValues.put(QDFDbAdapter.TIMESTAMP , System.currentTimeMillis());
          
-        initialValues.put(QDFDbAdapter.LOCATION , generateNewData(274));
+        initialValues.put(QDFDbAdapter.LOCATION , generateNewData(360));
 
         return sqlDb.insert(QDFDbAdapter.DATATABLENAME, null, initialValues);
 		}
@@ -36,12 +36,12 @@ public class SQLLoad {
 		if(sqlDb != null){
 		ContentValues initialValues = new ContentValues();
 		
-        initialValues.put(QDFDbAdapter.TIMESTAMP , System.currentTimeMillis());
+        //initialValues.put(QDFDbAdapter.TIMESTAMP , System.currentTimeMillis());
 
         initialValues.put(QDFDbAdapter.DWELLTIME , generateNewData(120));
         initialValues.put(QDFDbAdapter.CENTERFREQ, generateNewData(56));
         initialValues.put(QDFDbAdapter.READ, 0);
-
+        //initialValues.put(QDFDbAdapter.READ, 1);//Assuming its allready been read
         return sqlDb.insert(QDFDbAdapter.SETTINGSTABLENAME, null, initialValues);
 		}
 		return -1;

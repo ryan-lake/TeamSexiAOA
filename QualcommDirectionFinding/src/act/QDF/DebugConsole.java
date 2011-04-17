@@ -150,11 +150,11 @@ To prevent multiple instances of services to access the db maybe a static servic
     public void  onResume(){
     	super.onResume();
     	
-        this.registerReceiver(this.mBR, mConsoleIf);
+        this.registerReceiver(mBR, mConsoleIf);
         
         if(!PollingService.isRunning()){//Probably a better way to check but need working
         	this.startService(new Intent(this,com.Services.PollingService.class));        
-        }
+        } 
         
         mAdapter.open();
         mAdapter.purgeAll();//testing
@@ -170,7 +170,9 @@ To prevent multiple instances of services to access the db maybe a static servic
     public void onStop(){
     	super.onStop();
     	//this.unregisterReceiver(consoleBR);
-    	mAdapter.close();
+    	
+    	//mAdapter.close();
+    	
     	//this.stopService(new Intent(this,com.Services.PollingService.class));
     	//this.unregisterReceiver(this.mBR);
     }
