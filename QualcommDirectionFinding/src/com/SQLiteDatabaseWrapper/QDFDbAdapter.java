@@ -47,9 +47,15 @@ public class QDFDbAdapter{
     public static final String UPDATEGUIACTION = "com.Services.UpdateGUIValues";
     public static final String GETLOCATIONACTION = "com.Services.GetLocationValues";	
 	
+    /* Defaults will be 
+    *  .5 - sec dwell time
+	*	18,525,000,000 kil - center freq. 18.525 Mega Hz 
+    */
+    
+    private final int mDefaultCenterFreq = 18525000;//Hz
+    private final int mDefaultDwellTime = 500;//mSec
 		
 	//Global DB Variables
-	//public static final String DBPATH = "Android/data/Ubuntu/QuallcommDirectionFinding/SQLite/";
     public static final String DBPATH="/data/data/act.QDF/databases/";
     public static final String DBNAME = "QDFDataBase";
     public static final int DBVERSION = 1;
@@ -78,8 +84,8 @@ public class QDFDbAdapter{
     public static final String DATATABLENAME = "data";
 
     //Table 2 Keys
-    public static final String LOCATION= "location";//location given in Degrees(0 = straight ahead = North)
-   
+    public static final String LOCATION= "location";//location given in Degrees(0 = left, EAST = Cartesian Coordinate plan)
+    public static final String POWERLEVEL= "powerlevel";//This should be the average power 
     
     /**
      * Commands
@@ -109,7 +115,8 @@ public class QDFDbAdapter{
     public static final String COMMAND_CREATE_TABLE_DATA= "CREATE TABLE "+DATATABLENAME+ " ( "+
 			//TIMESTAMP + " INTEGER PRIMARY KEY, "+
     		TIMESTAMP + " DATE PRIMARY KEY, "+
-   			LOCATION + " INTEGER NOT NULL);";
+   			LOCATION + " INTEGER NOT NULL, " +
+   			POWERLEVEL + " INTEGER NOT NULL);";
     
     public static final String COMMAND_CREATE_TRIGGER_SETTINGS=
     "CREATE TRIGGER "+SETTINGSTABLENAME+"_"+TIMESTAMP+" AFTER  INSERT ON " + SETTINGSTABLENAME+
@@ -174,16 +181,12 @@ public class QDFDbAdapter{
    public void loadTestData(){
 	   long status; //for debug
 	   if(mDb!=null){
-		  status= SQLLoad.loadSettings(mDb);
+		  //status= SQLLoad.loadSettings(mDb);
 		  status = SQLLoad.loadData(mDb);
-
+		  status = 0;
 	   }
    }
 
-
-    
-
-    
     public boolean purgeAll(){//clear the Database
     	long temp = -1;
     	long temp2 = -1;
@@ -195,7 +198,7 @@ public class QDFDbAdapter{
     	
     }
     
-    //////Table specific
+    //////Table specific functions
     
 /**
 	-----------Data Table--------------    
@@ -213,11 +216,8 @@ public class QDFDbAdapter{
     	return temp;
     }
 
-    public void setup(){};
-
     /**
      * pollDataTable will only look at the currect time stamp of the data table
-     *
      */
     public static long pollDataTable(){
     	long temp = 0;
@@ -249,7 +249,7 @@ public class QDFDbAdapter{
     
     //Read data table
     public Cursor readData(){
-    return mDb.query(this.DATATABLENAME, new String[] {this.TIMESTAMP,this.LOCATION},
+    return mDb.query(this.DATATABLENAME, new String[] {this.TIMESTAMP,this.LOCATION, this.POWERLEVEL},
     		null, null, null, null, null);
 }
     /**
@@ -258,12 +258,17 @@ public class QDFDbAdapter{
     /**
      * Removes previous entries,and place new data in the settigns table 
      */
+    /**
+     * Initialize the settings table with the default values for the Dwell time and center frequency.
+     * this also will work at  
+     *
+     */
+    public long InitializeSettings(){
+    	return updateSettings(this.mDefaultDwellTime,this.mDefaultCenterFreq);
+    }
     public long updateSettings(int dwellTime, int centerFreque) {
         ContentValues initialValues = new ContentValues();
-        
-        
-        //initialValues.put(QDFDbAdapter.TIMESTAMP , System.currentTimeMillis());
-        
+          
         initialValues.put(this.DWELLTIME, dwellTime);
         initialValues.put(this.CENTERFREQ, centerFreque);
         initialValues.put(this.READ, 0);
@@ -320,7 +325,5 @@ public class QDFDbAdapter{
 		public void onUpgrade(SQLiteDatabase arg0, int arg1, int arg2) {
 			// TODO Auto-generated method stub
 		}
-		
-	
 	}//Helper
 }//Service

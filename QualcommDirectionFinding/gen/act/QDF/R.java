@@ -38,6 +38,7 @@ public final class R {
         public static final int labelCenterFreq=0x7f07002b;
         public static final int labelDwellTime=0x7f070026;
         public static final int linearLayout1=0x7f07001c;
+        public static final int powerBar=0x7f07001f;
         public static final int radioButton2=0x7f07000b;
         public static final int radioButtonE=0x7f070015;
         public static final int radioButtonENE=0x7f070014;
@@ -59,7 +60,6 @@ public final class R {
         public static final int relativeLayout2=0x7f070027;
         public static final int relativeLayout3=0x7f07002c;
         public static final int relativeLayoutButtonPnel=0x7f070001;
-        public static final int seekBar1=0x7f07001f;
         public static final int spinnerFreq=0x7f07002e;
         public static final int spinnerTime=0x7f070029;
         public static final int tableLayout1=0x7f070021;

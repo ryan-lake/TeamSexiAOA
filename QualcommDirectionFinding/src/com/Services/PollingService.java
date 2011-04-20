@@ -92,12 +92,6 @@ public class PollingService extends Service {
 	public IBinder onBind(Intent arg0) {
 		return null;
 	}
-	//Redundent
-	public void sendBroadcast(Intent intent){
-		super.sendBroadcast(intent);
-	}
-	
-
 	/**
 	 * Now: Polling the static varible to see if it is time to pull new test data
 	 * 
@@ -190,10 +184,10 @@ public class PollingService extends Service {
 	    }
 	    private boolean compareTimestamp(long timestamp) {	
 	    	boolean result = false;
-	    	if (this.timestamp!=0){
+	    	//if (this.timestamp!=0){//for default values
 	    		if(this.timestamp == timestamp){
 	    			result = true;
-	    		}
+	    	//	}
 	    	}
 	    	
 	    	return result;

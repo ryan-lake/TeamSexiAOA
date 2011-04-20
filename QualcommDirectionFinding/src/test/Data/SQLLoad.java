@@ -23,6 +23,7 @@ public class SQLLoad {
         //initialValues.put(QDFDbAdapter.TIMESTAMP , System.currentTimeMillis());
          
         initialValues.put(QDFDbAdapter.LOCATION , generateNewData(360));
+        initialValues.put(QDFDbAdapter.POWERLEVEL , generateNewData(1000));
 
         return sqlDb.insert(QDFDbAdapter.DATATABLENAME, null, initialValues);
 		}

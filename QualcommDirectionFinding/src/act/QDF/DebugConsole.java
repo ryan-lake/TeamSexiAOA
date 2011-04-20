@@ -49,17 +49,9 @@ To prevent multiple instances of services to access the db maybe a static servic
 		
 
    */ 
-    //URI
-    //cursor
-    //public static SQLiteDatabase sqlDB;
     
     //Database
     QDFDbAdapter mAdapter;
-    //Cursor cursor;
-    
-    //Test area 
-    //snap
-	//ConsoleBR mConsoleBR;
 	
 	private BroadcastReceiver  mBR;
 	IntentFilter mConsoleIf;
@@ -157,8 +149,8 @@ To prevent multiple instances of services to access the db maybe a static servic
         } 
         
         mAdapter.open();
-        mAdapter.purgeAll();//testing
-        mAdapter.loadTestData();
+        //mAdapter.purgeAll();//testing
+        //mAdapter.loadTestData();
     }
     @Override
     public void onPause(){
@@ -180,9 +172,10 @@ To prevent multiple instances of services to access the db maybe a static servic
     public void onDestroy(){
     	//this.unregisterReceiver(receiver)
     	super.onDestroy();
-    	if(!PollingService.isRunning()){
-    		this.stopService(new Intent(this,com.Services.PollingService.class));   		
-    	}   	
+    	/*Rely on the GUI to stop the service*/
+    	//if(!PollingService.isRunning()){
+    	//	this.stopService(new Intent(this,com.Services.PollingService.class));   		
+    	//}   	
     	mAdapter.close();
     }
 

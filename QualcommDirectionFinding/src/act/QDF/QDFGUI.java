@@ -25,6 +25,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -41,30 +42,28 @@ public class QDFGUI extends Activity {
 	
     QDFDbAdapter mAdapter;
     
+    //selections from the Drop downs
     String mFreqScale;
     String mTimeScale;
     
     int mDegree;
+    int mCurrentPowerLevel;
     String mDirection;
+    
+    int mMaxPower;
+    
+    //Object ID of the current Active Radio button
     int intID;
+
         
-    //Progress Dialog
+    //Progress Dialog-used when updating the settings
     ProgressDialog mProgress;
     
-    
-/*	
- * 
-   public QDFGUI(){  
-    super();    
-    }
-    */
 	@Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.qdfgui); 
-        
-        intID =-1;
-        
+      
         mConsoleIf = new IntentFilter();
         mConsoleIf.addAction(this.POLLINGACTION);
         mConsoleIf.addAction(this.UPDATEACTION);       
@@ -76,23 +75,27 @@ public class QDFGUI extends Activity {
             	
             	if(QDFGUI.UPDATEACTION.equals(action))
             		{mProgress.dismiss();}
-            	else{	
-            	if(QDFGUI.POLLINGACTION.equals(action))
-            		
+            	else if(QDFGUI.POLLINGACTION.equals(action)){          		
             		new UIUpdateTask().execute();
             	}
 
-        		
+            	
             }
         };
         
-        
+        //Load default values
+        mDegree = 0;//default
+        this.mCurrentPowerLevel = 0;
+        mMaxPower = 1000;
+        intID = R.id.radioButtonE;//Default
       
+        //DB
+        mAdapter = new QDFDbAdapter(this);
+        //Update Setting progress dialog 
         mProgress = new ProgressDialog(this);
         mProgress.setMessage("Changeing setting for Angle of Arrival...");
         mProgress.setCancelable(false);
-
-        mAdapter = new QDFDbAdapter(this);
+        
         
         /*Spinner - Time*/
         Spinner spinnerTime = (Spinner) findViewById(R.id.spinnerTime);
@@ -100,7 +103,6 @@ public class QDFGUI extends Activity {
                 this, R.array.time_array, android.R.layout.simple_spinner_item);
         adapterTime.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerTime.setAdapter(adapterTime);
-        
         spinnerTime.setOnItemSelectedListener(TimeOnItemSelectedListener);
         
         /*Spinner - Freq*/
@@ -108,8 +110,7 @@ public class QDFGUI extends Activity {
         ArrayAdapter<CharSequence> adapterFreq = ArrayAdapter.createFromResource(
                 this, R.array.freq_array, android.R.layout.simple_spinner_item);
         adapterFreq.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerFreq.setAdapter(adapterFreq);
-        
+        spinnerFreq.setAdapter(adapterFreq);       
         spinnerFreq.setOnItemSelectedListener(FreqOnItemSelectedListener);
         
         //Buttons
@@ -118,28 +119,34 @@ public class QDFGUI extends Activity {
         
         Button updateSettingsButton = (Button)findViewById(R.id.updateSettingsButton);        
         updateSettingsButton.setOnClickListener(mUpdateSettingsListener);
-    }//OnCreate
+        //Power Bar
+        SeekBar powerBar = (SeekBar)findViewById(R.id.powerBar);
+        powerBar.setIndeterminate(false);
+	}//OnCreate
 	  
     @Override
     public void onStart(){
     	super.onStart();	
-/*        this.registerReceiver(mBR, mConsoleIf);
-        
-    	this.startService(new Intent(this,com.Services.PollingService.class));        
- */
     }
-    @Override
+    @Override/*TODO Lock the GUI till the data handshake is done, even at initilization*/
     public void  onResume(){
     	super.onResume();
     	
         this.registerReceiver(this.mBR, mConsoleIf);
+        
         if(!PollingService.isRunning()){
         	this.startService(new Intent(this,com.Services.PollingService.class));        
         }     	
         
         mAdapter.open();
-        mAdapter.purgeAll();//testing
-        mAdapter.loadTestData();
+        //Plan is that the GUI will not begin recieveing data
+        //till the Settigns table is populated and then the C/C++ scripts will fire
+        //Then data should start coming in
+        mAdapter.purgeAll();
+        mAdapter.InitializeSettings();
+        
+       // mAdapter.purgeData();//clean the database of old data, 
+        mAdapter.updateData();// FIXME Should not have to call this
     }
     @Override
     public void onPause(){//called when new activity started
@@ -165,16 +172,11 @@ public class QDFGUI extends Activity {
     }
     ////////////////Helper function
     
-    public void updateGUI(String newValue){
-    	//TextView status = (TextView) findViewById(R.id.StatusText);
-		//Simulated update GUI Algorithm
-        //	status.setText("Status: "+"\n"+newValue);
+    public void updateGUI(String newValue){   	
     	//Turn on the corresponding radio button based on the feed back we got formt he functions  	
-    	//getButton();
-    	//int intID;
     	if(intID!=-1){
-        RadioButton oldButton = (RadioButton)findViewById(intID);        
-        oldButton.setChecked(false);
+    		RadioButton oldButton = (RadioButton)findViewById(intID);        
+    		oldButton.setChecked(false);
         //oldButton.setSelected(false);
     	}
     	
@@ -190,18 +192,18 @@ public class QDFGUI extends Activity {
         degreeText.setText("Degree: "+mDegree);
         
         EditText dirText = (EditText)findViewById(R.id.editTextDirection);        
-        dirText.setText("Direction: "+mDirection);
+        dirText.setText("Dir.: "+mDirection);
         
+        //Set Max at 100 thus all we need to do is set the percentage
+        SeekBar powerBar = (SeekBar)findViewById(R.id.powerBar);
+        
+        powerBar.setProgress((mCurrentPowerLevel*100)/mMaxPower);
         //AnalogClock clock=(AnalogClock)findViewById(R.id.analogClock1);
         
         //clock.se
     }
-    private int getButton(String state){
-    	return R.id.radioButtonENE;
-    }
-    ///----------Actions
-    
-    
+
+    ///----------Actions       
     protected void toggleActivities(){
     	Intent temp = new Intent(this,act.QDF.DebugConsole.class);
 		temp.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -211,7 +213,7 @@ public class QDFGUI extends Activity {
 		}
     
     
-       //Listeners 
+//Listeners 
     private OnClickListener mUpdateSettingsListener = new OnClickListener() {
         public void onClick(View v) {
         	//ProgressDialog dialog = ProgressDialog.show(thisOne, "", "Changing ");//TODO Cancelable listener?
@@ -230,47 +232,48 @@ public class QDFGUI extends Activity {
         	toggleActivities();
         }
     };
+    
     public OnItemSelectedListener TimeOnItemSelectedListener = new OnItemSelectedListener() {
-
         public void onItemSelected(AdapterView<?> parent,
             View view, int pos, long id) {
           //Toast.makeText(parent.getContext()), "The planet is " +
-              mTimeScale = parent.getItemAtPosition(pos).toString();//, Toast.LENGTH_LONG).show();
+              mTimeScale = parent.getItemAtPosition(pos).toString();
         }
-
         public void onNothingSelected(AdapterView parent) {
-          // Do nothing.
+        	System.out.print(true);
+        	 //mTimeScale = parent.getItemAtPosition(pos).toString();
+        	// Do nothing.
         }
-    };//Listenr
+    };
     public OnItemSelectedListener FreqOnItemSelectedListener = new OnItemSelectedListener() {
 
         public void onItemSelected(AdapterView<?> parent,
             View view, int pos, long id) {
+        	
           //Toast.makeText(parent.getContext()), "The planet is " +
               mFreqScale=parent.getItemAtPosition(pos).toString();//, Toast.LENGTH_LONG).show();
+              //parent.clearFocus();
+              //parent.
         }
 
         public void onNothingSelected(AdapterView parent) {
-          // Do nothing.
+        	System.out.print(true);
+        	 //mTimeScale = parent.getItemAtPosition(pos).toString();
+        	// Do nothing.
         }
     };//Listenr
+    
+    
     public class UIUpdateTask extends AsyncTask<CharSequence,Void, String>{
     	//<parameters,progress, result>
     		public UIUpdateTask() {
     			super();
-
     		}
     		
     		@Override
        		protected String doInBackground(CharSequence... arg0) {
-    	    	//TextView status = (TextView) findViewById(R.id.StatusText);
-    			//Simulated Algorithm
-    	    	//String text = (String)status.getText();
     	        /*
-    	         *  * TODO
-    	         * Defaults will be 
-    	         *  .5 - sec dwell time
-    				18,525,000,000 kil - center freq. 18.525 Mega Hz 
+    	         * 
     	         * True directions:
     	         * 
     	         * East = 0
@@ -279,57 +282,55 @@ public class QDFGUI extends Activity {
     	         * South = 270
     	         * 
     	         * 16 buttons
-    	         * 16 states
-    	         * 
+    	         *     			
+    			 * 16 possible states depending on the degree	
+    			 * E
+    			 * ENE
+    			 * NE
+    			 * NNE
+    			 * N
+    			 * NNW
+    			 * NW
+    			 * WNW
+    			 * W
+    			 * WSW
+    			 * SW
+    			 * SSW
+    			 * S
+    			 * SSE
+    			 * SE
+    			 * ESE
+    			 *	
+    			 *
+    			 * 
     	         * 360 Degress total/16=22.5 Degrees per button
     	         * *+or- 11.25
-    	         * 
-    	         * 
     	         * 
     	         * Thus the primary function of this is to return the
     	         *  coordinate/state we are in. This returns the ID
     	         */
     			String results = "N";//represents the state, Defualt to north 
-    			
     			int intID = R.id.radioButtonN;
+    			
     			//FIXME-better try catch support
     			Cursor cursor = (SQLiteCursor) mAdapter.readData();
     	        cursor.moveToLast();
     	        
     			mDegree=Integer.parseInt(cursor.getString(1));
+    			mCurrentPowerLevel = Integer.parseInt(cursor.getString(2));
     			cursor.close();
+    			
+    			//TODO Delete Old record Here.
     			
     			//Enforce degree range
     			if(mDegree>360 || mDegree<0)
     				{
     				return results+","+String.valueOf(intID);}
-    			
-    			/*16 possible states depending on the degree
-    			 *	
-    			 *E
-    			 *ENE
-    			 *NE
-    			 *NNE
-    			 *N
-    			 *NNW
-    			 *NW
-    			 *WNW
-    			 *W
-    			 *WSW
-    			 *SW
-    			 *SSW
-    			 *S
-    			 *SSE
-    			 *SE
-    			 *ESE
-    			 *	
-    			 **/
-    			
+//Determine what element/state is active
       			if(mDegree >=348.7||mDegree<11.25)
       				{
       				 results = "E";
-      				 intID = R.id.radioButtonE;
-      				}
+      				 intID = R.id.radioButtonE;}
       			else if(mDegree >=11.25&&mDegree<33.75)
   					{results = "ENE";
   					intID = R.id.radioButtonENE;}
@@ -346,7 +347,8 @@ public class QDFGUI extends Activity {
 					{results = "NNW";
 					intID = R.id.radioButtonNNW;}
       			else if(mDegree >=123.75&&mDegree<146.25)
-					{results = "NW";}
+					{results = "NW";
+					intID = R.id.radioButtonNW;}
       			else if(mDegree >=146.25&&mDegree<168.75)
 					{results = "WNW";
 					intID = R.id.radioButtonWNW;}
@@ -363,7 +365,8 @@ public class QDFGUI extends Activity {
 					{results = "SSW";
 					intID = R.id.radioButtonSSW;}
       			else if(mDegree >=258.75&&mDegree<281.25)
-      				{results = "S";}
+      				{results = "S";
+      				intID = R.id.radioButtonS;}
       			else if(mDegree >=281.25&&mDegree<303.75)
       				{results = "SSE";
       				intID = R.id.radioButtonSSE;}
@@ -375,7 +378,6 @@ public class QDFGUI extends Activity {
       				intID = R.id.radioButtonESE;}
     			//Now we have state
       			
-      			
       			return results+","+String.valueOf(intID);
 
     		}
@@ -384,6 +386,7 @@ public class QDFGUI extends Activity {
     		public void onPostExecute(String result){
     			updateGUI(result);
     			this.cancel(true);
+    			//this.
     			
     		}
     }//Asynch Task
