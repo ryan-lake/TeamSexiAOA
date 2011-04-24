@@ -92,12 +92,6 @@ public class PollingService extends Service {
 	public IBinder onBind(Intent arg0) {
 		return null;
 	}
-	//Redundent
-	public void sendBroadcast(Intent intent){
-		super.sendBroadcast(intent);
-	}
-	
-
 	/**
 	 * Now: Polling the static varible to see if it is time to pull new test data
 	 * 
@@ -113,7 +107,9 @@ public class PollingService extends Service {
 		//private PollingService parent;//for intent handling
 		
 		private boolean status;
-	    private long timestamp;
+		private long timestamp;
+	    
+		private int oldRead;
 	    private Application app;
 		
 	    public PollProcess(Application a){
@@ -125,26 +121,39 @@ public class PollingService extends Service {
 	    }
 	    
 		public void run() {
+			long newTimeStamp;
+			int newRead;//0 = still not read, 1 = read
 			while(!allDone){
-				long newTimeStamp = QDFDbAdapter.pollDataTable();
+				newTimeStamp = QDFDbAdapter.pollDataTable();
+				newRead = QDFDbAdapter.pollSettingsTable();
 				
+				if(this.compareRead(newRead)){
+					Intent temp = new Intent();
+					temp.setAction(QDFGUI.UPDATEACTION);	
+					try{
+						this.wait(10000);
+					}catch(Exception e){}
+					
+					
+					app.sendBroadcast(temp);
+				}
 				if(timestamp == 0 && newTimeStamp != 0){
 					//load default value but only if its a good value
 					setTimestamp(newTimeStamp);
 				}
 				status = compareTimestamp(newTimeStamp);
 				
-				if(!status){
+				if(!status){//if new Data in the table
 					setTimestamp(newTimeStamp);
 					
 					Intent temp = new Intent();
-					temp.setAction(DebugConsole.POLLINGACTION);	
-					temp.setAction(QDFGUI.POLLINGACTION);
-					
-					temp.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
+						temp.setAction(DebugConsole.POLLINGACTION);	
+					app.sendBroadcast(temp);
+						temp.setAction(QDFGUI.POLLINGACTION);
+					app.sendBroadcast(temp);
+					//temp.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
 					
 					//if(app!=null){
-						app.sendBroadcast(temp);
 				}			
 				
 				try{
@@ -156,13 +165,29 @@ public class PollingService extends Service {
 
 			}//while
 		}//run
-
-	    public boolean compareTimestamp(long timestamp) {	
+/*
+ * The transisiton form 0 to 1 is the important transition here
+ */
+	    private boolean compareRead(int newRead) {	
 	    	boolean result = false;
-	    	if (this.timestamp!=0){
+	    	/*Test Purposes*/
+	    	if (oldRead==1 && newRead==1){
+    			result = true;
+	    	}
+	    	/**/
+	    	
+	    	if (oldRead==0 && newRead==1){
+	    			result = true;
+	    	}
+	    	oldRead=newRead;
+	    	return result;
+	    }
+	    private boolean compareTimestamp(long timestamp) {	
+	    	boolean result = false;
+	    	//if (this.timestamp!=0){//for default values
 	    		if(this.timestamp == timestamp){
 	    			result = true;
-	    		}
+	    	//	}
 	    	}
 	    	
 	    	return result;
