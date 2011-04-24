@@ -44,7 +44,7 @@
 #include <complex>
 #include <math.h>
 
-//#include "sqlite_interface.h"
+#include "sqlite_interface.h"
 #include "aoa.h"
 
 //****************************************************************
