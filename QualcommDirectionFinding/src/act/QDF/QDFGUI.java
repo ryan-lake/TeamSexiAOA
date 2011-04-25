@@ -16,6 +16,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.text.InputFilter;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -29,6 +30,36 @@ import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+
+///////////////////////////////////////////////////////
+/*************************************************************
+/////////////////////////////////////////////////////////////////////
+         ___           ___           ___           ___      
+        /\  \         /\  \         /\  \         /\__\    
+        \:\  \       /::\  \       /::\  \       /::|  |   
+         \:\  \     /:/\:\  \     /:/\:\  \     /:|:|  |   
+         /::\  \   /::\~\:\  \   /::\~\:\  \   /:/|:|__|__ 
+        /:/\:\__\ /:/\:\ \:\__\ /:/\:\ \:\__\ /:/ |::::\__\
+       /:/  \/__/ \:\~\:\ \/__/ \/__\:\/:/  / \/__/~~/:/  /
+      /:/  /       \:\ \:\__\        \::/  /        /:/  / 
+      \/__/         \:\ \/__/        /:/  /        /:/  /  
+                     \:\__\         /:/  /        /:/  /   
+                      \/__/         \/__/         \/__/    
+         ___           ___           ___                 
+        /\  \         /\  \         |\__\          ___   
+       /::\  \       /::\  \        |:|  |        /\  \  
+      /:/\ \  \     /:/\:\  \       |:|  |        \:\  \ 
+     _\:\~\ \  \   /::\~\:\  \      |:|__|__      /::\__\
+    /\ \:\ \ \__\ /:/\:\ \:\__\ ____/::::\__\  __/:/\/__/
+    \:\ \:\ \/__/ \:\~\:\ \/__/ \::::/~~/~    /\/:/  /   
+     \:\ \:\__\    \:\ \:\__\    ~~|:|~~|     \::/__/    
+      \:\/:/  /     \:\ \/__/      |:|  |      \:\__\    
+       \::/  /       \:\__\        |:|  |       \/__/    
+        \/__/         \/__/         \|__|                
+
+/////////////////////////////////////////////////////////////////////
+*///********************************************************
+///////////////////////////////////////////////////
 public class QDFGUI extends Activity {
 
     public static final String POLLINGACTION = "act.QDF.QDFGUI.Polling";
@@ -40,22 +71,23 @@ public class QDFGUI extends Activity {
     private BroadcastReceiver mBR;
 	IntentFilter mConsoleIf;
 	
-    QDFDbAdapter mAdapter;
-    
-    //selections from the Drop downs
+    //Selections from the Drop downs
+	int mFreq; 
+	int mTime;
     String mFreqScale;
     String mTimeScale;
     
+    //DB    
+    QDFDbAdapter mAdapter;
     int mDegree;
     int mCurrentPowerLevel;
     String mDirection;
     
-    int mMaxPower;
-    
+    int mMaxPower;//NEED TO GET
+        
     //Object ID of the current Active Radio button
     int intID;
-
-        
+   
     //Progress Dialog-used when updating the settings
     ProgressDialog mProgress;
     
@@ -77,9 +109,7 @@ public class QDFGUI extends Activity {
             		{mProgress.dismiss();}
             	else if(QDFGUI.POLLINGACTION.equals(action)){          		
             		new UIUpdateTask().execute();
-            	}
-
-            	
+            	}           	
             }
         };
         
@@ -91,12 +121,15 @@ public class QDFGUI extends Activity {
       
         //DB
         mAdapter = new QDFDbAdapter(this);
+        
+        mFreqScale = "MHz";
+        mTimeScale = "Sec";
+        
         //Update Setting progress dialog 
         mProgress = new ProgressDialog(this);
         mProgress.setMessage("Changeing setting for Angle of Arrival...");
         mProgress.setCancelable(false);
-        
-        
+                
         /*Spinner - Time*/
         Spinner spinnerTime = (Spinner) findViewById(R.id.spinnerTime);
         ArrayAdapter<CharSequence> adapterTime = ArrayAdapter.createFromResource(
@@ -113,22 +146,38 @@ public class QDFGUI extends Activity {
         spinnerFreq.setAdapter(adapterFreq);       
         spinnerFreq.setOnItemSelectedListener(FreqOnItemSelectedListener);
         
+        
         //Buttons
         Button toggleToConButton = (Button)findViewById(R.id.toggleToConButton);        
         toggleToConButton.setOnClickListener(mToggleListener);
         
         Button updateSettingsButton = (Button)findViewById(R.id.updateSettingsButton);        
         updateSettingsButton.setOnClickListener(mUpdateSettingsListener);
+        
         //Power Bar
         SeekBar powerBar = (SeekBar)findViewById(R.id.powerBar);
         powerBar.setIndeterminate(false);
+        
+        /*TODO
+         * Set up Keyboard to actually listen
+         * 
+         */
+       //EditText timeText = (EditText)findViewById(R.id.editTextTime);
+        //timeText.set
+        
+       // EditText freqText = (EditText)findViewById(R.id.editTextFreq);     
+        
+        
+        //Pull settings from the GUI and  
+        setSettingsValues();
+        
 	}//OnCreate
 	  
     @Override
     public void onStart(){
     	super.onStart();	
     }
-    @Override/*TODO Lock the GUI till the data handshake is done, even at initilization*/
+    @Override
     public void  onResume(){
     	super.onResume();
     	
@@ -136,17 +185,25 @@ public class QDFGUI extends Activity {
         
         if(!PollingService.isRunning()){
         	this.startService(new Intent(this,com.Services.PollingService.class));        
-        }     	
+        } 
         
+        
+        
+        /*Set up the Database*/
         mAdapter.open();
-        //Plan is that the GUI will not begin recieveing data
-        //till the Settigns table is populated and then the C/C++ scripts will fire
+        //Plan is that the GUI will not begin receiving data
+        //till the Settings table is populated and then the C/C++ scripts will fire
         //Then data should start coming in
         mAdapter.purgeAll();
-        mAdapter.InitializeSettings();
+       
+        //TODO should role the
+        mAdapter.initializeSettings(); 
         
-       // mAdapter.purgeData();//clean the database of old data, 
-        mAdapter.updateData();// FIXME Should not have to call this
+        mProgress.show();//lock GUI till the handshake is done
+        
+        //Seed data base, get base timestamp into the DB
+        
+       // mAdapter.updateData();//Fix me
     }
     @Override
     public void onPause(){//called when new activity started
@@ -198,9 +255,10 @@ public class QDFGUI extends Activity {
         SeekBar powerBar = (SeekBar)findViewById(R.id.powerBar);
         
         powerBar.setProgress((mCurrentPowerLevel*100)/mMaxPower);
-        //AnalogClock clock=(AnalogClock)findViewById(R.id.analogClock1);
         
-        //clock.se
+        //FIXME - kill only the old value
+        mAdapter.purgeData();
+        
     }
 
     ///----------Actions       
@@ -218,13 +276,15 @@ public class QDFGUI extends Activity {
         public void onClick(View v) {
         	//ProgressDialog dialog = ProgressDialog.show(thisOne, "", "Changing ");//TODO Cancelable listener?
         	//dailog.
-        	//mAdapter.updateSettings(0, 0);
-        	
+        	//
         	
         	//mAdapter.purgeSettings();
-        	mAdapter.loadTestData();
-        	//mProgress.show();
-        	//adapter.updateData();
+        	//mAdapter.loadTestData();
+        	mAdapter.purgeSettings();
+        	mProgress.show();
+        	setSettingsValues();
+        	mAdapter.updateSettings(mTime, mFreq);
+
         }
     };
     private OnClickListener mToggleListener = new OnClickListener() {
@@ -238,10 +298,9 @@ public class QDFGUI extends Activity {
             View view, int pos, long id) {
           //Toast.makeText(parent.getContext()), "The planet is " +
               mTimeScale = parent.getItemAtPosition(pos).toString();
+              
         }
         public void onNothingSelected(AdapterView parent) {
-        	System.out.print(true);
-        	 //mTimeScale = parent.getItemAtPosition(pos).toString();
         	// Do nothing.
         }
     };
@@ -257,13 +316,64 @@ public class QDFGUI extends Activity {
         }
 
         public void onNothingSelected(AdapterView parent) {
-        	System.out.print(true);
-        	 //mTimeScale = parent.getItemAtPosition(pos).toString();
         	// Do nothing.
         }
-    };//Listenr
+    };
     
+    //Update GUI
+    //Change the edit box based one he new scale
+    //public  {}
     
+   //Set the global Settings 
+    //If the edit box is chaged fire this to update the new settings 
+   // public {}
+    /**
+     * get values from the GUI and set the numrical
+     * 
+     */
+     
+    private void setSettingsValues(){
+       /*
+        * 	
+    int mFreq; 
+	int mTime;
+    String mFreqScale;
+    String mTimeScale;
+    
+        */
+  Float temp;
+  float temp2;
+
+       EditText freqText = (EditText)findViewById(R.id.editTextFreq);       
+       temp2 = Float.parseFloat(freqText.getText().toString());
+
+      // temp = new Float(temp2*1000000);
+       
+       if(mFreqScale.equals("MHz")){
+    	   temp = new Float(temp2*1000000);
+    	   mFreq= temp.intValue();
+       }else if(mFreqScale.equals("KHz")){
+    	   temp = new Float(temp2*1000);
+    	   mFreq= temp.intValue();
+       }else if(mFreqScale.equals("Hz")){
+    	   temp = new Float(temp2);
+    	   mFreq= temp.intValue();
+       }
+
+       
+       EditText timeText = (EditText)findViewById(R.id.editTextTime);
+       temp2 = Float.parseFloat(timeText.getText().toString());
+       
+       if(mTimeScale.equals("Sec")){
+    	   temp = new Float(temp2*1000);
+    	   mTime= temp.intValue();
+       }else if(mTimeScale.equals("mSec")){
+    	   temp = new Float(temp2);
+    	   mTime= temp.intValue();
+       }
+       
+       
+    }
     public class UIUpdateTask extends AsyncTask<CharSequence,Void, String>{
     	//<parameters,progress, result>
     		public UIUpdateTask() {
@@ -316,8 +426,12 @@ public class QDFGUI extends Activity {
     			Cursor cursor = (SQLiteCursor) mAdapter.readData();
     	        cursor.moveToLast();
     	        
+    	        try{
     			mDegree=Integer.parseInt(cursor.getString(1));
     			mCurrentPowerLevel = Integer.parseInt(cursor.getString(2));
+    	        }catch(Exception e){
+    	        	//Database is toast
+    	        }
     			cursor.close();
     			
     			//TODO Delete Old record Here.
@@ -379,15 +493,12 @@ public class QDFGUI extends Activity {
     			//Now we have state
       			
       			return results+","+String.valueOf(intID);
-
     		}
-
     		@Override
     		public void onPostExecute(String result){
     			updateGUI(result);
     			this.cancel(true);
-    			//this.
-    			
+    			//this.   			
     		}
     }//Asynch Task
 }//QDF Activity

@@ -6,12 +6,9 @@
 	<string-array name="time_array">
         <item>Sec</item>
         <item>mSec</item>
-        <item>uSec</item>
     </string-array>
     <string-array name="freq_array">
         <item>MHz</item>
-        <item>KHz</item>
-        <item>Hz</item>
     </string-array>
         <string name="string_prompt">Select Time Scale</string>
         <string name="freq_prompt">Select Frequency Scale</string>

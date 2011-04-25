@@ -42,7 +42,6 @@ public class SQLLoad {
         initialValues.put(QDFDbAdapter.DWELLTIME , generateNewData(120));
         initialValues.put(QDFDbAdapter.CENTERFREQ, generateNewData(56));
         initialValues.put(QDFDbAdapter.READ, 0);
-        //initialValues.put(QDFDbAdapter.READ, 1);//Assuming its allready been read
         return sqlDb.insert(QDFDbAdapter.SETTINGSTABLENAME, null, initialValues);
 		}
 		return -1;

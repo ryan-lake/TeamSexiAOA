@@ -26,9 +26,6 @@ import android.os.IBinder;
  * If this proves to be an issue, we can move to have the service be bound to what 
  * ever active GUI is present. 
  * 		Service Manager might be required at that point
- * 
- * FIXME Need a broadcast reciever to handle the outgoing transmission to the DB
- * 
  */
 public class QDFDbAdapter{
     //Might be able to drop these into the R string xml since this DB will be static 
@@ -186,7 +183,29 @@ public class QDFDbAdapter{
 		  status = 0;
 	   }
    }
-
+   /*TEST- to simulated the data handshake*/
+   public static void simHandShake(int count){
+	   if(count % 8==0){//Every 4 sseconds		   
+		   ContentValues values = new ContentValues();
+		   values.put(QDFDbAdapter.READ, 1);		   
+		   mDb.update(QDFDbAdapter.SETTINGSTABLENAME, values, null, null);
+		   //replaceOrThrow(this.SETTINGSTABLENAME, null, initialValues)
+	   }	   
+   }
+   
+   /*
+    * Simulate loading the data in the first thing
+    * 
+    * Add  New record every 10 seconds
+    */
+   public static void simFirstData(int count)
+   {
+	   if((count%20)==0){
+		   SQLLoad.loadData(mDb);
+	   }
+   }
+	
+/**/
     public boolean purgeAll(){//clear the Database
     	long temp = -1;
     	long temp2 = -1;
@@ -215,6 +234,21 @@ public class QDFDbAdapter{
     	}
     	return temp;
     }
+    
+    public long delOldData(){
+    	long temp = -1;
+    	
+    	try{
+    	if(mDb !=null){
+    		//FIXME to get this working with killing only 1 row
+    		temp = mDb.delete(DATATABLENAME, null, null);
+    	}
+    	}catch(Exception e){
+    		e.printStackTrace();
+    	}
+    	return temp;
+    }
+    
 
     /**
      * pollDataTable will only look at the currect time stamp of the data table
@@ -245,8 +279,7 @@ public class QDFDbAdapter{
     	}
     	return -1;
     }
-    
-    
+     
     //Read data table
     public Cursor readData(){
     return mDb.query(this.DATATABLENAME, new String[] {this.TIMESTAMP,this.LOCATION, this.POWERLEVEL},
@@ -256,14 +289,14 @@ public class QDFDbAdapter{
     					-----------Settings Table--------------    
     */
     /**
-     * Removes previous entries,and place new data in the settigns table 
+     * Removes previous entries,and place new data in the settings table 
      */
     /**
      * Initialize the settings table with the default values for the Dwell time and center frequency.
      * this also will work at  
      *
      */
-    public long InitializeSettings(){
+    public long initializeSettings(){
     	return updateSettings(this.mDefaultDwellTime,this.mDefaultCenterFreq);
     }
     public long updateSettings(int dwellTime, int centerFreque) {
@@ -323,7 +356,7 @@ public class QDFDbAdapter{
 		}
 		@Override
 		public void onUpgrade(SQLiteDatabase arg0, int arg1, int arg2) {
-			// TODO Auto-generated method stub
+			//Nothing at this point
 		}
 	}//Helper
 }//Service

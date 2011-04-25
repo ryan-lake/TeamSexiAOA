@@ -24,8 +24,8 @@
         <RadioButton android:layout_width="40dip" android:text="RadioButton" android:layout_alignParentLeft="true" android:layout_height="40dip" android:clickable="false" android:id="@+id/radioButtonNW"></RadioButton>
         <FrameLayout android:id="@+id/frameLayout4" android:layout_below="@+id/radioButtonNW" android:layout_toRightOf="@+id/radioButtonNW" android:layout_width="120dip" android:layout_height="120dip">
             <LinearLayout android:layout_height="wrap_content" android:id="@+id/linearLayout1" android:orientation="vertical" android:layout_width="match_parent">
-                <EditText android:id="@+id/editTextDegree" android:text="Degree: " android:layout_width="match_parent" android:layout_height="wrap_content"></EditText>
-                <EditText android:text="Direction: " android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/editTextDirection"></EditText>
+                <EditText android:id="@+id/editTextDegree" android:text="Degree: " android:layout_width="match_parent" android:layout_height="wrap_content" android:clickable="false" android:editable="false"></EditText>
+                <EditText android:text="Direction: " android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/editTextDirection" android:clickable="false" android:editable="false"></EditText>
                 <SeekBar android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/powerBar" android:clickable="false" android:max="100" android:indeterminate="false"></SeekBar>
             </LinearLayout>
         </FrameLayout>
@@ -40,14 +40,14 @@
         <TableRow android:id="@+id/tableRow2" android:layout_height="wrap_content" android:layout_width="wrap_content">
             <TextView android:paddingTop="5dip" android:text="Dwell Time" android:layout_width="wrap_content" android:layout_height="wrap_content" android:paddingBottom="5dip" android:id="@+id/labelDwellTime"></TextView>
             <RelativeLayout android:id="@+id/relativeLayout2" android:layout_width="wrap_content" android:layout_height="wrap_content">
-                <EditText android:text="0.5" android:id="@+id/editTextTime" android:layout_height="50dip" android:layout_width="60dip"></EditText>
+                <EditText android:text="0.5" android:id="@+id/editTextTime" android:layout_height="50dip" android:layout_width="60dip" android:lines="1" android:inputType="numberDecimal" android:numeric="decimal"></EditText>
                 <Spinner android:layout_height="match_parent" android:layout_width="wrap_content" android:layout_toRightOf="@+id/editTextTime" android:layout_alignTop="@+id/editTextTime" android:layout_alignBottom="@+id/editTextTime" android:prompt="@string/string_prompt" android:entries="@array/time_array" android:id="@+id/spinnerTime"></Spinner>
             </RelativeLayout>
         </TableRow>
         <TableRow android:id="@+id/tableRow3" android:layout_width="wrap_content" android:layout_height="wrap_content">
         	<TextView android:paddingTop="5dip" android:text="Center Frequency" android:layout_height="wrap_content" android:paddingBottom="5dip" android:id="@+id/labelCenterFreq" android:lines="2" android:layout_width="50dip"></TextView>
         	<RelativeLayout android:id="@+id/relativeLayout3" android:layout_width="wrap_content" android:layout_height="wrap_content">
-        		<EditText android:text="18.5" android:id="@+id/editTextFreq" android:layout_height="50dip" android:layout_width="60dip"></EditText>
+        		<EditText android:id="@+id/editTextFreq" android:layout_height="50dip" android:layout_width="60dip" android:text="18.525" android:lines="1" android:isScrollContainer="false" android:inputType="numberDecimal" android:numeric="decimal"></EditText>
         		<Spinner android:layout_height="match_parent" android:layout_width="wrap_content" android:layout_toRightOf="@+id/editTextFreq" android:layout_alignTop="@+id/editTextFreq" android:layout_alignBottom="@+id/editTextFreq" android:prompt="@string/freq_prompt" android:entries="@array/freq_array" android:id="@+id/spinnerFreq"></Spinner>
         	</RelativeLayout>       
         </TableRow>

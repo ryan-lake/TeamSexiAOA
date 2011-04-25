@@ -123,18 +123,14 @@ public class PollingService extends Service {
 		public void run() {
 			long newTimeStamp;
 			int newRead;//0 = still not read, 1 = read
+			int count = 0;//Delete me
 			while(!allDone){
 				newTimeStamp = QDFDbAdapter.pollDataTable();
 				newRead = QDFDbAdapter.pollSettingsTable();
 				
 				if(this.compareRead(newRead)){
 					Intent temp = new Intent();
-					temp.setAction(QDFGUI.UPDATEACTION);	
-					try{
-						this.wait(10000);
-					}catch(Exception e){}
-					
-					
+					temp.setAction(QDFGUI.UPDATEACTION);				
 					app.sendBroadcast(temp);
 				}
 				if(timestamp == 0 && newTimeStamp != 0){
@@ -154,7 +150,13 @@ public class PollingService extends Service {
 					//temp.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
 					
 					//if(app!=null){
-				}			
+				}
+				//FIXME -Simulated data handshake
+				//TODO Remove
+				QDFDbAdapter.simHandShake(count);
+				QDFDbAdapter.simFirstData(count);
+				count++;
+				//
 				
 				try{
 					Thread.sleep(500);//1 second
@@ -171,9 +173,9 @@ public class PollingService extends Service {
 	    private boolean compareRead(int newRead) {	
 	    	boolean result = false;
 	    	/*Test Purposes*/
-	    	if (oldRead==1 && newRead==1){
-    			result = true;
-	    	}
+	    	//if (oldRead==1 && newRead==1){
+    		//	result = true;
+	    	//}
 	    	/**/
 	    	
 	    	if (oldRead==0 && newRead==1){
@@ -202,9 +204,6 @@ public class PollingService extends Service {
 
 		public void setAllDone(boolean allDone) {
 			this.allDone = allDone;
-		}
-		
-		
-	
+		}	
 	}//Polling Process	
 }//Polling service
