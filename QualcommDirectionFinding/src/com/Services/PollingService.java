@@ -9,6 +9,7 @@ import android.app.Application;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
 import act.QDF.DebugConsole;
 import act.QDF.QDFGUI;
 /**
@@ -54,25 +55,23 @@ public class PollingService extends Service {
 	public int onStartCommand(Intent intent,int flags,int startId){
 		//handleCommand(intent);
 		setRunning(true);
-			if(pollThread.isAlive()){
-				//process.allDone= true; 
+			if(!pollThread.isAlive()){
+				pollThread.start(); 
 			}		
-			else{
-				pollThread.start();
-			}
 			/*
 			try{
 		}catch(Exception e){
 			e.printStackTrace();//TODO Might need some better way to handle this
 		}
 	*/	
+	    Log.i(QDFGUI.QDFTAG+name, "QDF Polling Service Started");
 		return START_STICKY;
 	}
 	
 	@Override	
 	public void onDestroy(){//hmmmm??? need to test
 		//kill the thread, once stopped null it to remove memmory footprint
-		
+		super.onDestroy();
 		process.setAllDone(true);
 		setRunning(false);
 		/*
@@ -82,6 +81,7 @@ public class PollingService extends Service {
 			}
 		}while(pollThread!=null);
 		*/
+        Log.i(QDFGUI.QDFTAG+name, "QDF Polling Service Stoped");
 
 	}
 
@@ -123,11 +123,16 @@ public class PollingService extends Service {
 		public void run() {
 			long newTimeStamp;
 			int newRead;//0 = still not read, 1 = read
-			int count = 0;//Delete me
+			int count = 0;//TODO Delete me
 			while(!allDone){
+				try{
 				newTimeStamp = QDFDbAdapter.pollDataTable();
 				newRead = QDFDbAdapter.pollSettingsTable();
-				
+				}catch(Exception e){
+					newTimeStamp = 0;
+					newRead= 0;//default to not being read
+					Log.e(QDFGUI.QDFTAG+name, "Problem with database");
+				}
 				if(this.compareRead(newRead)){
 					Intent temp = new Intent();
 					temp.setAction(QDFGUI.UPDATEACTION);				
@@ -143,40 +148,39 @@ public class PollingService extends Service {
 					setTimestamp(newTimeStamp);
 					
 					Intent temp = new Intent();
+					temp.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
 						temp.setAction(DebugConsole.POLLINGACTION);	
 					app.sendBroadcast(temp);
 						temp.setAction(QDFGUI.POLLINGACTION);
 					app.sendBroadcast(temp);
-					//temp.setFlags(Intent.FLAG_RECEIVER_REGISTERED_ONLY);
-					
-					//if(app!=null){
 				}
-				//FIXME -Simulated data handshake
-				//TODO Remove
+				//FIXME -REMOVE Simulated data handshake
+				try{
 				QDFDbAdapter.simHandShake(count);
 				QDFDbAdapter.simFirstData(count);
+				}catch(Exception e){
+					this.allDone =true;
+					Log.e("Polling Service", "Sim: FAIL");//Stop thread? then restart?
+					Log.e("Polling Service", e.toString()==null?e.toString():"We Fail and dont know y");//Stop thread? then restart?
+				}
 				count++;
 				//
 				
 				try{
-					Thread.sleep(500);//1 second
+					Thread.sleep(500);//1/2 second approximately
 					}catch(Exception e){
 						System.out.println("\nBroken: \n");
 						e.printStackTrace();
 					}
 
 			}//while
+			Log.i(QDFGUI.QDFTAG+name, "Polling service ended");
 		}//run
 /*
  * The transisiton form 0 to 1 is the important transition here
  */
 	    private boolean compareRead(int newRead) {	
 	    	boolean result = false;
-	    	/*Test Purposes*/
-	    	//if (oldRead==1 && newRead==1){
-    		//	result = true;
-	    	//}
-	    	/**/
 	    	
 	    	if (oldRead==0 && newRead==1){
 	    			result = true;
@@ -186,12 +190,9 @@ public class PollingService extends Service {
 	    }
 	    private boolean compareTimestamp(long timestamp) {	
 	    	boolean result = false;
-	    	//if (this.timestamp!=0){//for default values
 	    		if(this.timestamp == timestamp){
 	    			result = true;
-	    	//	}
 	    	}
-	    	
 	    	return result;
 		}
 
@@ -201,7 +202,6 @@ public class PollingService extends Service {
 		public boolean isAllDone() {
 			return allDone;
 		}
-
 		public void setAllDone(boolean allDone) {
 			this.allDone = allDone;
 		}	

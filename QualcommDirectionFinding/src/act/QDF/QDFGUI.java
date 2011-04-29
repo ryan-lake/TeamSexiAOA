@@ -15,8 +15,10 @@ import android.content.IntentFilter;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteCursor;
 import android.os.AsyncTask;
+import android.os.AsyncTask.Status;
 import android.os.Bundle;
 import android.text.InputFilter;
+import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
@@ -29,10 +31,8 @@ import android.widget.RadioButton;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
-
-
 ///////////////////////////////////////////////////////
-/*************************************************************
+/*
 /////////////////////////////////////////////////////////////////////
          ___           ___           ___           ___      
         /\  \         /\  \         /\  \         /\__\    
@@ -57,8 +57,14 @@ import android.widget.TextView;
        \::/  /       \:\__\        |:|  |       \/__/    
         \/__/         \/__/         \|__|                
 
+Students Engineering Xtreme Interfaces (S.E.X.I)
 /////////////////////////////////////////////////////////////////////
-*///********************************************************
+*/
+/**
+ * Qualcomm Direction Finding(QDF) Application-
+ * 
+ * 
+ */
 ///////////////////////////////////////////////////
 public class QDFGUI extends Activity {
 
@@ -66,7 +72,7 @@ public class QDFGUI extends Activity {
     public static final String UPDATEACTION = "act.QDF.QDFGUI.UpdateSettingsDone";
     public static final String TOGTOCONACTION = "act.QDF.QDFGUI.ToggleToConsole";
     
-
+    public static final String QDFTAG = "QDF";
 	
     private BroadcastReceiver mBR;
 	IntentFilter mConsoleIf;
@@ -86,6 +92,7 @@ public class QDFGUI extends Activity {
     int mMaxPower;//NEED TO GET
         
     //Object ID of the current Active Radio button
+    UIUpdateTask updateTask;
     int intID;
    
     //Progress Dialog-used when updating the settings
@@ -108,8 +115,18 @@ public class QDFGUI extends Activity {
             	if(QDFGUI.UPDATEACTION.equals(action))
             		{mProgress.dismiss();}
             	else if(QDFGUI.POLLINGACTION.equals(action)){          		
-            		new UIUpdateTask().execute();
-            	}           	
+            		if(updateTask==null||updateTask.getStatus().toString()==Status.FINISHED.toString()){
+            		 //new UIUpdateTask().execute();
+            		updateTask = new UIUpdateTask();
+            		updateTask.execute();
+            			Log.i("QDF","New AsyncTask Started");
+            		}
+            		else{
+            			Log.i("QDF","Still processing GUI request");
+            		
+            		}
+            			
+            	}          	
             }
         };
         
@@ -119,11 +136,11 @@ public class QDFGUI extends Activity {
         mMaxPower = 1000;
         intID = R.id.radioButtonE;//Default
       
-        //DB
-        mAdapter = new QDFDbAdapter(this);
-        
         mFreqScale = "MHz";
         mTimeScale = "Sec";
+        
+        //DB
+        mAdapter = new QDFDbAdapter(this);
         
         //Update Setting progress dialog 
         mProgress = new ProgressDialog(this);
@@ -158,8 +175,7 @@ public class QDFGUI extends Activity {
         SeekBar powerBar = (SeekBar)findViewById(R.id.powerBar);
         powerBar.setIndeterminate(false);
         
-        /*TODO
-         * Set up Keyboard to actually listen
+        /*FIXME Set up Keyboard to actually listen
          * 
          */
        //EditText timeText = (EditText)findViewById(R.id.editTextTime);
@@ -170,6 +186,8 @@ public class QDFGUI extends Activity {
         
         //Pull settings from the GUI and  
         setSettingsValues();
+        
+        Log.i(QDFTAG, "QDF Initialized.");
         
 	}//OnCreate
 	  
@@ -196,14 +214,11 @@ public class QDFGUI extends Activity {
         //Then data should start coming in
         mAdapter.purgeAll();
        
-        //TODO should role the
         mAdapter.initializeSettings(); 
         
         mProgress.show();//lock GUI till the handshake is done
+        Log.i(QDFTAG, "QDF Resumed.");
         
-        //Seed data base, get base timestamp into the DB
-        
-       // mAdapter.updateData();//Fix me
     }
     @Override
     public void onPause(){//called when new activity started
@@ -214,27 +229,32 @@ public class QDFGUI extends Activity {
     @Override
     public void onStop(){
     	super.onStop();
-    	//mAdapter.close();
+    	if(PollingService.isRunning()){
+    		this.stopService(new Intent(this,com.Services.PollingService.class));
+    	}
+
+    	Log.i(QDFTAG,"Attempting to Stop GUI task: "+this.updateTask.cancel(true));
+    	mAdapter.close();
+        Log.i(QDFTAG, "QDF Stoped.");
+    	mProgress.dismiss();
 
     }
     @Override
     public void onDestroy(){
     	//this.unregisterReceiver(receiver)
     	super.onDestroy();
-    	if(PollingService.isRunning()){
-    		this.stopService(new Intent(this,com.Services.PollingService.class));
-    	}
     	
-    	mAdapter.close();
     }
     ////////////////Helper function
     
     public void updateGUI(String newValue){   	
     	//Turn on the corresponding radio button based on the feed back we got formt he functions  	
+    	if(newValue.equals("BadCursor"))//do nothing if DB value is bad
+    		return;
+    	
     	if(intID!=-1){
     		RadioButton oldButton = (RadioButton)findViewById(intID);        
     		oldButton.setChecked(false);
-        //oldButton.setSelected(false);
     	}
     	
     	int index = newValue.indexOf(',');// substring(start)
@@ -267,7 +287,7 @@ public class QDFGUI extends Activity {
 		temp.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
     	//this.stopService(new Intent(this,com.Services.PollingService.class));
 		startActivity(temp);
-		//this.finish();
+		//this.finish
 		}
     
     
@@ -308,11 +328,7 @@ public class QDFGUI extends Activity {
 
         public void onItemSelected(AdapterView<?> parent,
             View view, int pos, long id) {
-        	
-          //Toast.makeText(parent.getContext()), "The planet is " +
-              mFreqScale=parent.getItemAtPosition(pos).toString();//, Toast.LENGTH_LONG).show();
-              //parent.clearFocus();
-              //parent.
+              mFreqScale=parent.getItemAtPosition(pos).toString();
         }
 
         public void onNothingSelected(AdapterView parent) {
@@ -328,26 +344,18 @@ public class QDFGUI extends Activity {
     //If the edit box is chaged fire this to update the new settings 
    // public {}
     /**
-     * get values from the GUI and set the numrical
+     * 
+     * Get values from the GUI edit text boxes and scale the values and store them
      * 
      */
      
-    private void setSettingsValues(){
-       /*
-        * 	
-    int mFreq; 
-	int mTime;
-    String mFreqScale;
-    String mTimeScale;
-    
-        */
+ private void setSettingsValues(){
   Float temp;
   float temp2;
 
+  		//Get Freq value from the Editable text box
        EditText freqText = (EditText)findViewById(R.id.editTextFreq);       
        temp2 = Float.parseFloat(freqText.getText().toString());
-
-      // temp = new Float(temp2*1000000);
        
        if(mFreqScale.equals("MHz")){
     	   temp = new Float(temp2*1000000);
@@ -360,7 +368,7 @@ public class QDFGUI extends Activity {
     	   mFreq= temp.intValue();
        }
 
-       
+       //Get time value from editable text
        EditText timeText = (EditText)findViewById(R.id.editTextTime);
        temp2 = Float.parseFloat(timeText.getText().toString());
        
@@ -374,8 +382,12 @@ public class QDFGUI extends Activity {
        
        
     }
+    /**
+     * Do calculations to update the GUI, determine degrees, and active element
+     *
+     *NOTE: We have have approximately 5 instances of this thread spawned at any moment in time
+     */
     public class UIUpdateTask extends AsyncTask<CharSequence,Void, String>{
-    	//<parameters,progress, result>
     		public UIUpdateTask() {
     			super();
     		}
@@ -421,21 +433,30 @@ public class QDFGUI extends Activity {
     	         */
     			String results = "N";//represents the state, Defualt to north 
     			int intID = R.id.radioButtonN;
+	        	mDegree = 90;
+	        	mCurrentPowerLevel = 0;
+				
     			
     			//FIXME-better try catch support
-    			Cursor cursor = (SQLiteCursor) mAdapter.readData();
-    	        cursor.moveToLast();
-    	        
-    	        try{
-    			mDegree=Integer.parseInt(cursor.getString(1));
-    			mCurrentPowerLevel = Integer.parseInt(cursor.getString(2));
-    	        }catch(Exception e){
-    	        	//Database is toast
-    	        }
-    			cursor.close();
-    			
-    			//TODO Delete Old record Here.
-    			
+    			Cursor cursor;
+    			try{
+    				cursor = (SQLiteCursor) mAdapter.readData();
+    				cursor.moveToLast();
+    				if(cursor.getCount()==0){
+    					return "BadCursor";
+    				}
+        			mDegree=Integer.parseInt(cursor.getString(1));
+        			mCurrentPowerLevel = Integer.parseInt(cursor.getString(2));
+    	        	cursor.close();
+    			}catch(Exception e){
+    				//FIXME errors occuring cause we are nuking the Database every time
+    				Log.e(QDFTAG, "Problem with Cursor\n");
+    	        	mDegree = 90;
+    	        	mCurrentPowerLevel = 0;
+    				
+    				cursor=null;
+    			}
+    	            	        
     			//Enforce degree range
     			if(mDegree>360 || mDegree<0)
     				{
@@ -496,9 +517,16 @@ public class QDFGUI extends Activity {
     		}
     		@Override
     		public void onPostExecute(String result){
-    			updateGUI(result);
-    			this.cancel(true);
-    			//this.   			
+    			updateGUI(result);  
+    			//this.cancel(true);
+
+    			/*try {
+					this.finalize();
+				} catch (Throwable e) {
+					Log.e("QDFGUI", e.getMessage());
+				}	
+				*/		
     		}
+    		
     }//Asynch Task
 }//QDF Activity

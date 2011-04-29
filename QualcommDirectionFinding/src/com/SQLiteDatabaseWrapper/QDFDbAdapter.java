@@ -1,6 +1,7 @@
 package com.SQLiteDatabaseWrapper;
 
 import test.Data.SQLLoad;
+import act.QDF.QDFGUI;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
@@ -14,6 +15,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.os.IBinder;
+import android.util.Log;
 /**
  * Class acts as an Adapter to access the DB. It should hold a 
  * The primary reason that this is an independent service is to make it independent
@@ -98,10 +100,8 @@ public class QDFDbAdapter{
      *  
      *  	Query for direction data, key of timestamp
      *  	 
-     *  TODO Make a full list of the static commands
      * 
      */
-    //Commad Array?
     public static final String COMMAND_CREATE_TABLE_SETTINGS= "CREATE TABLE "+SETTINGSTABLENAME+" ( "+
     		//ID +" INTEGER NOT NULL, "+
     		TIMESTAMP + " DATE PRIMARY KEY, "+
@@ -130,7 +130,7 @@ public class QDFDbAdapter{
 	
     private static SQLiteDatabase mDb;//we only want this class manipulating the database
     private final Context mContext;
-    private QDFDbHelper mDbHelper;
+    private static QDFDbHelper mDbHelper;
     
     /*
      * Serives
@@ -175,6 +175,13 @@ public class QDFDbAdapter{
     public long updateData(	){ 	
     	return SQLLoad.loadData(mDb);
     }
+    /*
+     * Enter a blank entry in the database to set-up a 
+     */
+    public long InitializeData(	){
+    	
+    	return SQLLoad.loadData(mDb);
+    }
    public void loadTestData(){
 	   long status; //for debug
 	   if(mDb!=null){
@@ -196,12 +203,19 @@ public class QDFDbAdapter{
    /*
     * Simulate loading the data in the first thing
     * 
-    * Add  New record every 10 seconds
+    * Add  New record every .5 seconds, fastest we can add
+    * this produces a shit tone of error s 
     */
    public static void simFirstData(int count)
    {
-	   if((count%20)==0){
+	   if((count%2)==0){
+		   try{   
 		   SQLLoad.loadData(mDb);
+		   }catch(Exception e){
+			   Log.e(QDFGUI.QDFTAG, e.getMessage());
+			   //FIXME should pause the polling service when the Activity is not up to up
+			   //Occurs more when the 
+		   }
 	   }
    }
 	
@@ -230,7 +244,7 @@ public class QDFDbAdapter{
     		temp = mDb.delete(DATATABLENAME, null, null);
     	}
     	}catch(Exception e){
-    		e.printStackTrace();
+    		Log.e(QDFGUI.QDFTAG," Database closed");
     	}
     	return temp;
     }
@@ -244,7 +258,7 @@ public class QDFDbAdapter{
     		temp = mDb.delete(DATATABLENAME, null, null);
     	}
     	}catch(Exception e){
-    		e.printStackTrace();
+    		Log.e(QDFGUI.QDFTAG," Database closed");
     	}
     	return temp;
     }
@@ -268,6 +282,10 @@ public class QDFDbAdapter{
     }
     public static int pollSettingsTable(){
     	int temp = -1;
+    	/*FIXME Needed for abd push and pulls, obviously creates a fair amount of lag
+    	mDbHelper.close();
+    	mDb = mDbHelper.getWritableDatabase();
+    	*/
     	if(mDb!= null && mDb.isOpen()){
     		Cursor c = mDb.query(QDFDbAdapter.SETTINGSTABLENAME, new String[] {QDFDbAdapter.READ},
     				null, null, null, null, null);
@@ -324,7 +342,7 @@ public class QDFDbAdapter{
     
 
         
-///////////////////Helper Class to perform all the SQLite DB accesses and commands
+///////////////////Helper Class to perform all the SQLite DB creates and opens
 	private static class QDFDbHelper extends SQLiteOpenHelper {
 
 		public QDFDbHelper(Context context, String name, CursorFactory factory,
@@ -338,8 +356,7 @@ public class QDFDbAdapter{
 		}
 
 		@Override
-		public void onCreate(SQLiteDatabase sqlDB) {//called by getWriteableDatabase()
-            
+		public void onCreate(SQLiteDatabase sqlDB) {//called by getWriteableDatabase()           
 			try{
             	sqlDB.execSQL(COMMAND_CREATE_TABLE_SETTINGS);
             	sqlDB.execSQL(COMMAND_CREATE_TRIGGER_SETTINGS);
@@ -353,6 +370,10 @@ public class QDFDbAdapter{
         	}catch(Exception e){
         		e.printStackTrace();
             }
+		}
+		@Override
+		public void onOpen(SQLiteDatabase sqlDb) {
+			super.onOpen(sqlDb);
 		}
 		@Override
 		public void onUpgrade(SQLiteDatabase arg0, int arg1, int arg2) {

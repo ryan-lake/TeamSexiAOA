@@ -24,8 +24,8 @@
         <RadioButton android:layout_width="40dip" android:text="RadioButton" android:layout_alignParentLeft="true" android:layout_height="40dip" android:clickable="false" android:id="@+id/radioButtonNW"></RadioButton>
         <FrameLayout android:id="@+id/frameLayout4" android:layout_below="@+id/radioButtonNW" android:layout_toRightOf="@+id/radioButtonNW" android:layout_width="120dip" android:layout_height="120dip">
             <LinearLayout android:layout_height="wrap_content" android:id="@+id/linearLayout1" android:orientation="vertical" android:layout_width="match_parent">
-                <EditText android:id="@+id/editTextDegree" android:text="Degree: " android:layout_width="match_parent" android:layout_height="wrap_content" android:clickable="false" android:editable="false"></EditText>
-                <EditText android:text="Direction: " android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/editTextDirection" android:clickable="false" android:editable="false"></EditText>
+                <EditText android:id="@+id/editTextDegree" android:text="Degree: " android:layout_width="match_parent" android:layout_height="wrap_content" android:clickable="false" android:editable="false" android:selectAllOnFocus="false"></EditText>
+                <EditText android:text="Direction: " android:layout_width="match_parent" android:layout_height="wrap_content" android:id="@+id/editTextDirection" android:clickable="false" android:editable="false" android:selectAllOnFocus="false"></EditText>
                 <SeekBar android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/powerBar" android:clickable="false" android:max="100" android:indeterminate="false"></SeekBar>
             </LinearLayout>
         </FrameLayout>
