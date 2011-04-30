@@ -2,19 +2,13 @@ package com.SQLiteDatabaseWrapper;
 
 import test.Data.SQLLoad;
 import act.QDF.QDFGUI;
-import android.app.Notification;
-import android.app.NotificationManager;
-import android.app.Service;
-import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.IBinder;
 import android.util.Log;
 /**
  * Class acts as an Adapter to access the DB. It should hold a 
@@ -42,7 +36,6 @@ public class QDFDbAdapter{
 	 	Read the new data in and pass it to the GUI to update the location
 	 
 	 */
-	private BroadcastReceiver  BR;//
     public static final String UPDATEGUIACTION = "com.Services.UpdateGUIValues";
     public static final String GETLOCATIONACTION = "com.Services.GetLocationValues";	
 	
@@ -56,7 +49,7 @@ public class QDFDbAdapter{
 		
 	//Global DB Variables
     public static final String DBPATH="/data/data/act.QDF/databases/";
-    public static final String DBNAME = "QDFDataBase";
+    public static final String DBNAME = "QDFDatabase";
     public static final int DBVERSION = 1;
     
     //Global Keys
@@ -168,7 +161,7 @@ public class QDFDbAdapter{
 //    }
     @Deprecated
     public Cursor readSettings(){
-        return mDb.query(this.SETTINGSTABLENAME, new String[] {this.TIMESTAMP,this.DWELLTIME,this.CENTERFREQ,this.READ},
+        return mDb.query(QDFDbAdapter.SETTINGSTABLENAME, new String[] {QDFDbAdapter.TIMESTAMP,QDFDbAdapter.DWELLTIME,QDFDbAdapter.CENTERFREQ,QDFDbAdapter.READ},
         		null, null, null, null, null);
     }
     @Deprecated
@@ -183,11 +176,8 @@ public class QDFDbAdapter{
     	return SQLLoad.loadData(mDb);
     }
    public void loadTestData(){
-	   long status; //for debug
-	   if(mDb!=null){
-		  //status= SQLLoad.loadSettings(mDb);
-		  status = SQLLoad.loadData(mDb);
-		  status = 0;
+	   if(mDb!=null&&mDb.isOpen()){
+		  SQLLoad.loadData(mDb);
 	   }
    }
    /*TEST- to simulated the data handshake*/
@@ -249,20 +239,18 @@ public class QDFDbAdapter{
     	return temp;
     }
     
-    public long delOldData(){
+    public static long delOldData(long currentTimeStamp){
     	long temp = -1;
     	
     	try{
-    	if(mDb !=null){
-    		//FIXME to get this working with killing only 1 row
-    		temp = mDb.delete(DATATABLENAME, null, null);
+    	if(mDb !=null&& mDb.isOpen()){
+    		temp = mDb.delete(DATATABLENAME, "tstamp < "+currentTimeStamp, null);
     	}
     	}catch(Exception e){
-    		Log.e(QDFGUI.QDFTAG," Database closed");
+    		Log.e(QDFGUI.QDFTAG,e.getMessage());
     	}
     	return temp;
     }
-    
 
     /**
      * pollDataTable will only look at the currect time stamp of the data table
@@ -299,9 +287,14 @@ public class QDFDbAdapter{
     }
      
     //Read data table
-    public Cursor readData(){
-    return mDb.query(this.DATATABLENAME, new String[] {this.TIMESTAMP,this.LOCATION, this.POWERLEVEL},
+    public static Cursor readData(){
+    	if(mDb!=null&& mDb.isOpen()){
+    		return mDb.query(QDFDbAdapter.DATATABLENAME, new String[] {QDFDbAdapter.TIMESTAMP,QDFDbAdapter.LOCATION, QDFDbAdapter.POWERLEVEL},
     		null, null, null, null, null);
+    	}else{
+    		return null;
+    	}
+    	
 }
     /**
     					-----------Settings Table--------------    
@@ -320,11 +313,11 @@ public class QDFDbAdapter{
     public long updateSettings(int dwellTime, int centerFreque) {
         ContentValues initialValues = new ContentValues();
           
-        initialValues.put(this.DWELLTIME, dwellTime);
-        initialValues.put(this.CENTERFREQ, centerFreque);
-        initialValues.put(this.READ, 0);
+        initialValues.put(QDFDbAdapter.DWELLTIME, dwellTime);
+        initialValues.put(QDFDbAdapter.CENTERFREQ, centerFreque);
+        initialValues.put(QDFDbAdapter.READ, 0);
 
-        return mDb.insert(this.SETTINGSTABLENAME, null, initialValues);
+        return mDb.insert(QDFDbAdapter.SETTINGSTABLENAME, null, initialValues);
     }
     
     public long purgeSettings(){

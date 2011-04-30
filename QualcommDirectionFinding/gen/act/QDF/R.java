@@ -27,7 +27,8 @@ public final class R {
         public static final int RadioButton4=0x7f070010;
         public static final int RadioButton5=0x7f070011;
         public static final int RadioButton6=0x7f070013;
-        public static final int StatusText=0x7f070000;
+        public static final int aboutButton=0x7f070024;
+        public static final int doneButton=0x7f070003;
         public static final int editTextDegree=0x7f07001d;
         public static final int editTextDirection=0x7f07001e;
         public static final int editTextFreq=0x7f07002d;
@@ -35,8 +36,10 @@ public final class R {
         public static final int frameLayout2=0x7f070004;
         public static final int frameLayout3=0x7f070020;
         public static final int frameLayout4=0x7f07001b;
+        public static final int image=0x7f070001;
         public static final int labelCenterFreq=0x7f07002b;
         public static final int labelDwellTime=0x7f070026;
+        public static final int layout_root=0x7f070000;
         public static final int linearLayout1=0x7f07001c;
         public static final int powerBar=0x7f07001f;
         public static final int radioButton2=0x7f07000b;
@@ -59,27 +62,30 @@ public final class R {
         public static final int relativeLayout1=0x7f070005;
         public static final int relativeLayout2=0x7f070027;
         public static final int relativeLayout3=0x7f07002c;
-        public static final int relativeLayoutButtonPnel=0x7f070001;
         public static final int spinnerFreq=0x7f07002e;
         public static final int spinnerTime=0x7f070029;
         public static final int tableLayout1=0x7f070021;
         public static final int tableRow1=0x7f070022;
         public static final int tableRow2=0x7f070025;
         public static final int tableRow3=0x7f07002a;
-        public static final int toggleToConButton=0x7f070024;
-        public static final int toggleToGUIButton=0x7f070003;
-        public static final int updateSettingsButton=0x7f070023;
-        public static final int updater=0x7f070002;
+        public static final int text=0x7f070002;
+        public static final int updateButton=0x7f070023;
     }
     public static final class layout {
-        public static final int debug=0x7f030000;
+        public static final int about=0x7f030000;
         public static final int qdfgui=0x7f030001;
     }
     public static final class string {
+        public static final int about_button_label=0x7f05000a;
         public static final int app_name=0x7f050000;
         public static final int app_name_con=0x7f050001;
+        public static final int center_freq_label=0x7f050008;
+        public static final int default_degree=0x7f050005;
+        public static final int default_direction=0x7f050006;
+        public static final int dwell_label=0x7f050009;
         public static final int freq_prompt=0x7f050004;
-        public static final int string_prompt=0x7f050003;
+        public static final int time_prompt=0x7f050003;
+        public static final int update_button_label=0x7f050007;
         public static final int welcome_tile=0x7f050002;
     }
 }

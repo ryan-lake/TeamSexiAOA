@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/layout_root"
+              android:layout_width="fill_parent"
+              android:layout_height="fill_parent"
+              android:padding="10dp" android:orientation="vertical">
+    <ImageView android:layout_width="wrap_content" android:id="@+id/image" android:layout_marginRight="10dp" android:clickable="false" android:layout_height="wrap_content"></ImageView>
+    <TextView android:text="TextView" android:textColor="#FFF" android:layout_width="wrap_content" android:id="@+id/text" android:scrollbarAlwaysDrawVerticalTrack="true" android:scrollbars="vertical" android:layout_height="wrap_content"></TextView>
+    <Button android:layout_height="wrap_content" android:text="Done" android:layout_width="wrap_content" android:id="@+id/doneButton"></Button>
+</LinearLayout>

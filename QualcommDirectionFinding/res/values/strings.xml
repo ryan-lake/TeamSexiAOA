@@ -10,7 +10,13 @@
     <string-array name="freq_array">
         <item>MHz</item>
     </string-array>
-        <string name="string_prompt">Select Time Scale</string>
+        <string name="time_prompt">Select Time Scale</string>
         <string name="freq_prompt">Select Frequency Scale</string>
+        <string name="default_degree">Degrees Box</string>
+        <string name="default_direction">N,S,E,W Dir</string>
+        <string name="update_button_label">Update</string>
+        <string name="center_freq_label">Center Frequency</string>
+        <string name="dwell_label">Dwell Factor</string>
+        <string name="about_button_label">About</string>
 	
 </resources>

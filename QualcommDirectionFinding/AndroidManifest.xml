@@ -6,8 +6,7 @@
     <uses-sdk android:minSdkVersion="8" />
 
     <application android:icon="@drawable/quallogo" android:label="@string/app_name">
-        <activity android:label="@string/app_name_con" android:name="DebugConsole"></activity>
-<activity android:label="@string/app_name" android:name="QDFGUI">
+<activity android:label="@string/app_name" android:name="QDFGUI" android:icon="@drawable/quallogo">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -17,5 +16,6 @@
         <service android:enabled="true"
          android:name="com.Services.PollingService" 
          android:exported="false"></service>
+        <service android:enabled="true" android:exported="false" android:name="com.Services.GUIUpdater"></service>
     </application>
 </manifest>

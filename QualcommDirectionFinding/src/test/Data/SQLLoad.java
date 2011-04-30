@@ -7,8 +7,8 @@ import android.content.ContentValues;
 import java.util.Random;
 
 public class SQLLoad {
-	
-	
+
+	private static int tik = 0;
 	/**
 	 * Load Test vectors in to the data table
 	 * 
@@ -21,9 +21,13 @@ public class SQLLoad {
 		if(sqlDb != null&&sqlDb.isOpen()){
         ContentValues initialValues = new ContentValues();
         //initialValues.put(QDFDbAdapter.TIMESTAMP , System.currentTimeMillis());
-        initialValues.put(QDFDbAdapter.LOCATION , generateNewData(360));
+        if(!(tik>=0 && tik <=36)){
+			tik =0;			
+		}
+        initialValues.put(QDFDbAdapter.LOCATION , tik*10);
         initialValues.put(QDFDbAdapter.POWERLEVEL , generateNewData(1000));
 
+        tik++;
         return sqlDb.insertOrThrow(QDFDbAdapter.DATATABLENAME, null, initialValues);
 		}
 		return -1;
