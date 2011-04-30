@@ -62,15 +62,18 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
 	float p1,p2,direction;  //power pairs and direction
    int maxSamps;
    double rate, freq, gain, bandwidth, num, den;
+   int dwelltime;
 	float power[4]={0,0,0,0};  //corresponding to e,n,w,s
    size_t total_num_samps;
    size_t num_acc_samps;
    size_t num_bins;
    size_t num_rx_samps=0;
-
+   Sqlite db("QDFDatabase");
+   
 	rate =    	      4000000;
 	freq = 	         1852500000;    //sprint band
 	bandwidth =       1250000;
+	dwelltime = 	1000;
 	//total_num_samps=  10000;    // or some function of dwell time 
    num_bins=         512;	      // fft points
    gain =            20;         //needs empirical testing
@@ -79,6 +82,13 @@ int UHD_SAFE_MAIN(int argc, char *argv[]){
    uhd::rx_metadata_t md;
    uhd::set_thread_priority_safe();
    
+   if( db.needUpdate() )
+   {
+      freq = static_cast<double>(db.getFrequency());
+      dwelltime = db.getDwellTime();
+      db.confirmUpdated();
+   }   
+
 
    //create a usrp device w/ 2 antennas
    //std::cout << std::endl;
@@ -267,7 +277,6 @@ while (true){
 	      }// end if/else direction setting
 
 	   std::cout <<  "direction =  "<<direction<< std::endl;
-
       	//do we have user updates? (we do this in here so we have a 
       	//full data set from both antenna pairs before changing parameters
    	   if (update){

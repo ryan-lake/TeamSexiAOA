@@ -13,10 +13,11 @@
 using namespace std;
 class Sqlite
 {
+public:
     Sqlite(string path);
     
     bool needUpdate();
-    void putDirection(int direction);
+    void putDirection(int direction, int power);
     int  getDwellTime();
     int  getFrequency();
     void confirmUpdated();

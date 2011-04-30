@@ -11,7 +11,7 @@ Sqlite::Sqlite(string path)
 
 bool Sqlite::needUpdate()
 {
-    string query = "SELECT read FROM settings WHERE read=0";
+    string query = "SELECT read FROM settings WHERE read=0;";
     bool needUpdate = false;
     rc = sqlite3_open(dbPath.c_str(), &db);
     if ( rc )
@@ -32,9 +32,9 @@ bool Sqlite::needUpdate()
     return needUpdate;
 }
 
-void Sqlite::putDirection(int direction)
+void Sqlite::putDirection(int direction, int power)
 {
-    string query = "INSERT INTO data (location) VALUES (" + boost::lexical_cast<string>( direction ) + ");";
+    string query = "INSERT INTO data ( location, powerlevel ) VALUES (" + boost::lexical_cast<string>( direction ) + ", " + boost::lexical_cast<string>( power ) + ");";
     rc = sqlite3_open(dbPath.c_str(), &db);
     if ( rc )
     {
@@ -77,7 +77,7 @@ int Sqlite::getDwellTime()
 
 int Sqlite::getFrequency()
 {
-    string query = "SELECT frequency FROM settings WHERE read=0 ORDER BY tstamp DESC;";
+    string query = "SELECT centerfreq FROM settings WHERE read=0 ORDER BY tstamp DESC;";
     rc = sqlite3_open(dbPath.c_str(), &db);
     int frequency = 1852500000;
     if ( rc )
@@ -100,7 +100,7 @@ int Sqlite::getFrequency()
 
 void Sqlite::confirmUpdated()
 {
-    string query = "UDDATE settings SET read=1 WHERE read=0;";
+    string query = "UPDATE settings SET read=1 WHERE read=0;";
     rc = sqlite3_open(dbPath.c_str(), &db);
     int frequency = 1852500000;
     if ( rc )
