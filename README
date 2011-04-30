@@ -40,3 +40,21 @@ Android 2.2
 API Level 8
 SD Card 9MB
 WVGA800
+
+To run ubuntu
+-------------
+hook phone up
+# adb shell
+# exec bash --login
+# mount -o remount,rw /dev/block/vold/179\:3 /mnt/emmc/
+# /emmc/ubuntu/startubuntu.sh 
+You are now in ubuntu!
+useful things are at /gnuradio/aoa
+compile dataGenerator with 
+# g++ -o dataGenerator -lsqlite3 sqlite_interface.cpp dataGenerator.cpp
+
+When you are done exit from ubuntu with
+# exit
+then run 
+# /emmc/ubuntu/stopubuntu.sh
+to close everything down, if you have a problem reboot phone
