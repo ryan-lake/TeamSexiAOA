@@ -1,0 +1,37 @@
+/*
+Fake GUI to live in the computer
+(simulate the phone GUI)
+
+Create Database
+	Set tables, triggers
+	
+Sit and Query DB, and update if somethings new
+
+*SQLite calls out to the 
+Read : data-wait read again
+Write : settings-jsut write out 
+*/
+//----------Fake Layout
+
+Dialog 
+w/
+Data table 
+----------
+Degrees
+	Label+ Tbox
+Power
+	Label+TBox(or Progresss bar)
+
+Settings table
+--------------
+Dwelltime 
+	label+TBox
+Center Freq
+	label+TBox
+
+Update Button
+//------------
+
+
+//Timer
+Timer.schedule(TimerTask task, long delay)
