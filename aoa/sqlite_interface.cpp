@@ -21,12 +21,15 @@ bool Sqlite::needUpdate()
         exit(1);
     }
     rc = sqlite3_exec(db, query.c_str(), needUpdateCallback, &needUpdate, &zErrMsg);
-    if ( rc != SQLITE_OK )
+    while ( rc != SQLITE_OK )
     {
         cout << "Cannot execute query: " << query << "\n" << zErrMsg;
-        sqlite3_free(zErrMsg);
+        /*
+	sqlite3_free(zErrMsg);
         sqlite3_close(db);
         exit(1);
+	*/
+	rc = sqlite3_exec(db, query.c_str(), needUpdateCallback, &needUpdate, &zErrMsg);
     }
     sqlite3_close(db);
     return needUpdate;
@@ -43,12 +46,15 @@ void Sqlite::putDirection(int direction, int power)
         exit(1);
     }
     rc = sqlite3_exec(db, query.c_str(), 0, 0, &zErrMsg);
-    if ( rc != SQLITE_OK )
+    while ( rc != SQLITE_OK )
     {
         cout << "Cannot execute query: " << query << "\n" << zErrMsg;
-        sqlite3_free(zErrMsg);
+        /*
+	sqlite3_free(zErrMsg);
         sqlite3_close(db);
         exit(1);
+	*/
+	rc = sqlite3_exec(db, query.c_str(), 0, 0, &zErrMsg);
     }
     sqlite3_close(db);
 }
@@ -64,12 +70,15 @@ int Sqlite::getDwellTime()
         exit(1);
     }
     rc = sqlite3_exec(db, query.c_str(), dwellTimeCallback, &dwellTime, &zErrMsg);
-    if ( rc != SQLITE_OK )
+    while ( rc != SQLITE_OK )
     {
         cout << "Cannot execute query: " << query << "\n" << zErrMsg;
+	/*
         sqlite3_free(zErrMsg);
         sqlite3_close(db);
         exit(1);
+	*/
+	rc = sqlite3_exec(db, query.c_str(), dwellTimeCallback, &dwellTime, &zErrMsg);
     }
     sqlite3_close(db);
     return dwellTime;
@@ -87,12 +96,16 @@ int Sqlite::getFrequency()
         exit(1);
     }
     rc = sqlite3_exec(db, query.c_str(), frequencyCallback, &frequency, &zErrMsg);
-    if ( rc != SQLITE_OK )
+    while ( rc != SQLITE_OK )
     {
+    	
         cout << "Cannot execute query: " << query << "\n" << zErrMsg;
-        sqlite3_free(zErrMsg);
+        /*
+	sqlite3_free(zErrMsg);
         sqlite3_close(db);
         exit(1);
+	*/
+	rc = sqlite3_exec(db, query.c_str(), frequencyCallback, &frequency, &zErrMsg);
     }
     sqlite3_close(db);
     return frequency;
@@ -110,12 +123,14 @@ void Sqlite::confirmUpdated()
         exit(1);
     }
     rc = sqlite3_exec(db, query.c_str(), 0, 0, &zErrMsg);
-    if ( rc != SQLITE_OK )
+    while ( rc != SQLITE_OK )
     {
         cout << "Cannot execute query: " << query << "\n" << zErrMsg;
-        sqlite3_free(zErrMsg);
+        /*sqlite3_free(zErrMsg);
         sqlite3_close(db);
         exit(1);
+	*/
+	rc = sqlite3_exec(db, query.c_str(), 0, 0, &zErrMsg);
     }
     sqlite3_close(db);
 }

@@ -30,6 +30,6 @@ int main(){
 	
 	cout << "Current freq: " << freq << " Dwell: " << dwelltime << "\n";
 	cout << "Inserting Direction: " << direction << " Power: " << power << "\n";
-	sleep(1);
+	sleep(3);
    }
 }

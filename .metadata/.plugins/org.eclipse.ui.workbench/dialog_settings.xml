@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<section name="Workbench">
+	<section name="FileSystemImportWizard">
+	</section>
+	<section name="WorkbenchPreferenceDialogSettings">
+		<item value="4" key="DIALOG_Y_ORIGIN"/>
+		<item value="150" key="DIALOG_X_ORIGIN"/>
+	</section>
+	<section name="ShowViewDialog">
+		<item value="452" key="DIALOG_WIDTH"/>
+		<item value="com.android.ide.eclipse.ddms.views.LogCatView" key="ShowViewDialog.STORE_SELECTED_VIEW_ID"/>
+		<item value="78" key="DIALOG_Y_ORIGIN"/>
+		<item value="464" key="DIALOG_HEIGHT"/>
+		<item value="291" key="DIALOG_X_ORIGIN"/>
+		<item value="1|Sans|8.0|0|GTK|1|" key="DIALOG_FONT_NAME"/>
+		<list key="ShowViewDialog.STORE_EXPANDED_CATEGORIES_ID">
+			<item value="com.android.ide.eclipse.ddms.views.category"/>
+		</list>
+	</section>
+	<section name="ImportExportAction">
+	</section>
+</section>
